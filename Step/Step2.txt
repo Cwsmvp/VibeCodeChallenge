@@ -1,0 +1,6 @@
+- Khung giao diện(1)
+Bối cảnh: Đọc PROJECT.md. 
+Mục tiêu: Làm bước 1: chỉ tạo giao diện tĩnh, chưa có logic.
+Bố cục theo thứ tự từ trên xuống: tiêu đề + mô tả ngắn; ô nhập tên thương hiệu + nút “Phân tích”; khối “Đánh giá tên” (trống); khối “Gợi ý tên miền” (trống); khối “Slogan & Tagline” (trống); hàng nút cuối trang: “Copy tất cả” và “Đăng ký tên miền”.
+Phong cách: hiện đại, tối giản, dễ quan sát, thao tác, sạch, tiếng Việt, hiển thị tốt trên điện thoại. Mỗi khối là một component riêng để sau này dễ ghép.
+Không thêm tính năng ngoài danh sách trên.

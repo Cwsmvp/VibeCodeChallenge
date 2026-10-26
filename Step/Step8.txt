@@ -1,0 +1,5 @@
+- Nút copy tất cả + nút Đăng ký tên miền(7)
+Mục tiêu: hoàn thành nút copy tất cả + Đăng ký tên miền.
+1. Nút “Copy tất cả”: gom toàn bộ thông tin từ state thành một đoạn văn bản dễ đọc gồm: tên thương hiệu, điểm đánh giá và nhận xét, 5 tên miền kèm trạng thái (ghi rõ “kết quả demo”), 3 slogan, tagline. Dùng navigator.clipboard, có cách dự phòng nếu trình duyệt không hỗ trợ, và hiện thông báo nhỏ “Đã sao chép”.
+2. Nút “Đăng ký tên miền”: mở liên kết của nhà tài trợ trong tab mới (target="_blank", rel="noopener noreferrer"). Đặt URL trong một hằng số cấu hình ở đầu file là taitro_URL để dễ thay.
+Vô hiệu hóa cả hai nút khi chưa có kết quả phân tích.

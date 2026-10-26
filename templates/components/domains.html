@@ -1,0 +1,23 @@
+<section class="result-card" aria-labelledby="domains-title">
+  <div class="card-topline">
+    <span class="card-icon" aria-hidden="true">◎</span>
+    <span class="card-number" aria-hidden="true">02 / 03</span>
+  </div>
+  <h2 id="domains-title">Gợi ý tên miền</h2>
+  {% if state.domains %}
+    <p class="demo-notice">Kết quả demo, chỉ mang tính minh họa</p>
+    <ul class="domain-list">
+      {% for item in state.domains %}
+        <li class="domain-item">
+          <span class="domain-name">{{ item.domain }}</span>
+          <span class="domain-status domain-status--{{ item.status }}">{{ 'Còn trống' if item.status == 'available' else 'Đã đăng ký' }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="empty-state" aria-label="Chưa có gợi ý tên miền">
+      <span class="empty-orbit" aria-hidden="true"></span>
+      <p>Gợi ý tên miền sẽ xuất hiện ở đây</p>
+    </div>
+  {% endif %}
+</section>

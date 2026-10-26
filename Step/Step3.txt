@@ -1,0 +1,8 @@
+- Nhập tên, kiểm tra hợp lệ, tạo slug(2)
+Bối cảnh: Đọc PROJECT.md. 
+Mục tiêu: Làm bước 2 trên nền hiện có. Khi người dùng nhập tên thương hiệu và bấm “Phân tích”:
+- Cắt khoảng trắng đầu cuối. Nếu rỗng thì báo “Vui lòng nhập tên thương hiệu”.
+- Giới hạn 2 đến 30 ký tự, nếu sai thì báo lỗi rõ ràng dưới ô nhập.
+- Viết hàm Transtoslug(brand) trong file riêng: bỏ dấu tiếng Việt (nhớ xử lý chữ đ), chuyển chữ thường, bỏ khoảng trắng và ký tự đặc biệt, chỉ giữ a-z, 0-9 và dấu gạch ngang.
+- Lưu brand và slug vào state, hiển thị slug ngay dưới ô nhập.
+- ví dụ “Cà Phê Gió” ra “caphegio”,..., “Đất Việt” ra “datviet”,...

@@ -1,0 +1,7 @@
+- Kiểm tra tên miền chế độ demo(4)
+Bối cảnh: Đọc PROJECT.md. 
+Mục tiêu: Làm bước 4. Viết hàm Checkdomain(domain) trả về "available" hoặc "taken" theo quy tắc xác định (không dùng random):
+1) slug ngắn hơn 5 ký tự thì "taken";
+2) slug nằm trong danh sách từ phổ biến [shop, store, viet, coffee, online, vn, fashion] thì "taken";
+3) còn lại: tính mã băm đơn giản của chuỗi tên miền, chia dư 3, bằng 0 thì "taken", ngược lại "available".
+Hiển thị nhãn xanh “Còn trống” hoặc nhãn đỏ “Đã đăng ký” trên từng thẻ tên miền. Phía trên danh sách luôn hiển thị dòng chữ rõ ràng: “Kết quả demo, chỉ mang tính minh họa”. Cập nhật state.domains.

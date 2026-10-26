@@ -1,0 +1,4 @@
+- Sinh 5 biến thể tên miền(3)
+Bối cảnh: Đọc PROJECT.md. 
+Mục tiêu: Làm bước 3. Viết hàm Domains(slug) trả về đúng 5 tên miền theo thứ tự: slug.com, slug.vn, slug.com.vn, slug.shop, slug.online. Hiển thị trong khối “Gợi ý tên miền” dưới dạng danh sách thẻ, mỗi thẻ có tên miền và chỗ trống để hiện trạng thái (bước sau sẽ làm). Lưu kết quả vào state.domains. Danh sách đuôi tên miền để trong một mảng cấu hình dễ sửa.
+

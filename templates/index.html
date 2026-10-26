@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f7f2">
+    <meta name="description" content="Trợ lý đặt tên thương hiệu và tên miền: đánh giá tên, khám phá ý tưởng tên miền và slogan.">
+    <title>Trợ lý đặt tên thương hiệu &amp; tên miền</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="hero">
+        <div class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> TRỢ LÝ SÁNG TẠO THƯƠNG HIỆU</div>
+        <h1>Tên hay cho ý tưởng <span>lớn.</span></h1>
+        <p>Khám phá tiềm năng tên thương hiệu, gợi ý tên miền và câu chữ giúp ý tưởng của bạn được ghi nhớ.</p>
+      </header>
+
+      {% include 'components/brand_form.html' %}
+
+      <div class="results" aria-label="Khu vực kết quả">
+        {% include 'components/evaluation.html' %}
+        {% include 'components/domains.html' %}
+        {% include 'components/slogans.html' %}
+      </div>
+
+      {% include 'components/actions.html' %}
+    </main>
+  </body>
+</html>
