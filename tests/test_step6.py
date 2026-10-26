@@ -46,10 +46,12 @@ class EvaluationApiTests(unittest.TestCase):
             self.assertEqual(response.get_json(), {"error": "Hết thời gian chờ"})
 
     def test_provider_status_is_returned_without_provider_body(self):
-        with patch("app.evaluate_brand", side_effect=EvaluationError("Lỗi AI", 502, provider_status=401)):
+        with patch("app.evaluate_brand", side_effect=EvaluationError("Lỗi AI", 502, provider_status=429, provider_code="credit_balance_exhausted")):
             response = self.client.post("/api/evaluate", json={"brand": "Cà Phê Gió"})
             self.assertEqual(response.status_code, 502)
-            self.assertEqual(response.get_json(), {"error": "Lỗi AI", "provider_status": 401})
+            self.assertEqual(response.get_json(), {
+                "error": "Lỗi AI", "provider_status": 429, "provider_code": "credit_balance_exhausted"
+            })
 
     def test_success_returns_contract_and_page_displays_it(self):
         with patch("app.evaluate_brand", return_value=RESULT) as evaluate:
@@ -99,7 +101,19 @@ class EvaluationServiceTests(unittest.TestCase):
             with self.assertRaises(EvaluationError) as raised:
                 evaluate_brand("Cà Phê Gió")
             self.assertEqual(raised.exception.provider_status, 401)
+            self.assertIsNone(raised.exception.provider_code)
             self.assertNotIn("secret", str(raised.exception))
+
+    def test_known_provider_code_is_exposed_without_raw_error(self):
+        upstream_response = httpx.Response(429, request=httpx.Request("POST", "https://api.openai.com/v1/responses"))
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}), patch("evaluation.OpenAI") as client_class:
+            client_class.return_value.responses.create.side_effect = APIStatusError(
+                "private details", response=upstream_response, body={"code": "credit_balance_exhausted"}
+            )
+            with self.assertRaises(EvaluationError) as raised:
+                evaluate_brand("Cà Phê Gió")
+            self.assertEqual(raised.exception.provider_code, "credit_balance_exhausted")
+            self.assertNotIn("private", str(raised.exception))
 
 
 if __name__ == "__main__":

@@ -36,14 +36,31 @@ EVALUATION_SCHEMA = {
     "additionalProperties": False,
 }
 
+SAFE_PROVIDER_CODES = {
+    "credit_balance_exhausted",
+    "organization_spend_limit_exceeded",
+    "project_spend_limit_exceeded",
+    "organization_usage_limit_exceeded",
+    "slow_down",
+    "rate_limit_exceeded",
+    "insufficient_quota",
+}
+
 
 class EvaluationError(Exception):
     """Lỗi đánh giá có thông báo và mã HTTP an toàn cho người dùng."""
 
-    def __init__(self, message: str, status_code: int, provider_status: int | None = None):
+    def __init__(
+        self,
+        message: str,
+        status_code: int,
+        provider_status: int | None = None,
+        provider_code: str | None = None,
+    ):
         super().__init__(message)
         self.status_code = status_code
         self.provider_status = provider_status
+        self.provider_code = provider_code
 
 
 def _validated_result(data: object) -> dict:
@@ -92,10 +109,12 @@ def evaluate_brand(brand: str) -> dict:
     except APITimeoutError as exc:
         raise EvaluationError("Đánh giá AI quá thời gian chờ 15 giây", 504) from exc
     except APIStatusError as exc:
+        provider_code = exc.code if exc.code in SAFE_PROVIDER_CODES else None
         raise EvaluationError(
             "Chưa thể đánh giá tên lúc này. Vui lòng thử lại sau",
             502,
             provider_status=exc.status_code,
+            provider_code=provider_code,
         ) from exc
     except APIError as exc:
         raise EvaluationError("Chưa thể đánh giá tên lúc này. Vui lòng thử lại sau", 502) from exc

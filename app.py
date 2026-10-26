@@ -63,4 +63,6 @@ def api_evaluate():
         body = {"error": str(exc)}
         if exc.provider_status is not None:
             body["provider_status"] = exc.provider_status
+        if exc.provider_code is not None:
+            body["provider_code"] = exc.provider_code
         return jsonify(body), exc.status_code
