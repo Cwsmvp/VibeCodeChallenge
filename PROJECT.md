@@ -11,7 +11,7 @@ Web một trang viết bằng Python cho cuộc thi vibe coding. Người dùng 
 - Framework: **Flask 3.1.x** (Python 3.9 trở lên). Flask xử lý trang và các bước logic sau; Jinja dựng giao diện HTML.
 - Giao diện: HTML/CSS thuần, không cần framework giao diện hoặc bước biên dịch. Thiết kế theo mobile-first.
 - `app.py`: điểm vào Flask, route trang chủ và `POST /api/evaluate`. `slug.py`: hàm `Transtoslug(brand)` chuẩn hóa tên. `domains.py`: danh sách đuôi cấu hình và trạng thái demo. `evaluation.py`: system prompt, gọi OpenAI và kiểm tra JSON trả về.
-- `templates/index.html`: bố cục trang; `templates/components/`: các khối giao diện riêng; `static/style.css`: toàn bộ kiểu dáng.
+- `templates/index.html`: bố cục trang; `templates/components/`: các khối giao diện riêng; `public/style.css`: toàn bộ kiểu dáng. Flask dùng thư mục `public` làm nguồn CSS khi chạy cục bộ; Vercel phục vụ thư mục này trực tiếp.
 - `requirements.txt`: phụ thuộc Python. Cài và chạy cục bộ theo hướng dẫn bên dưới.
 - Bước 5 đã nối khối “Đánh giá tên” với AI phía máy chủ; khi chưa cấu hình API key hoặc AI gặp lỗi, phần tên miền vẫn hoạt động.
 
@@ -39,7 +39,7 @@ Những lần sau chỉ cần lệnh cuối. Mở `http://127.0.0.1:5000/` để
    ```
 
 3. Mở `http://127.0.0.1:5000/`, nhập tên rồi bấm **Phân tích**. Endpoint `POST /api/evaluate` nhận JSON `{ "brand": "..." }`, giới hạn 50 ký tự và trả JSON `evaluation` đúng mẫu bên dưới. Ô nhập trên trang vẫn giới hạn 2–30 ký tự theo bước 2.
-4. Khi triển khai bằng Vercel, kết nối repo và chọn Python/Flask; `app.py` là entrypoint. Trong **Project Settings → Environment Variables**, thêm `OPENAI_API_KEY` cho môi trường cần dùng (Preview/Production). Có thể thêm `OPENAI_MODEL`; mặc định là `gpt-4o-mini`. Triển khai lại sau khi thêm hoặc đổi biến. Không dùng biến công khai như `NEXT_PUBLIC_...` cho khóa.
+4. Khi triển khai bằng Vercel, kết nối repo và chọn Python/Flask; `app.py` là entrypoint, `requirements.txt` khai báo thư viện. Dự án dùng Flask trực tiếp, không cần Vite hoặc lệnh build giao diện. Trong **Project Settings → Environment Variables**, thêm `OPENAI_API_KEY` cho môi trường cần dùng (Preview/Production). Có thể thêm `OPENAI_MODEL`; mặc định là `gpt-4o-mini`. Triển khai lại sau khi thêm hoặc đổi biến. Không dùng biến công khai như `NEXT_PUBLIC_...` cho khóa.
 
 Lời gọi OpenAI có timeout 15 giây và tắt retry tự động để tránh kéo dài thời gian chờ. Khi thiếu khóa, timeout hoặc AI trả dữ liệu sai, API trả lỗi JSON và giao diện giữ lại kết quả tên miền demo. Không cần đưa API key vào trình duyệt.
 

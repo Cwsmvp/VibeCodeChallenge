@@ -23,7 +23,7 @@ Tài liệu này mô tả những gì đã thực hiện cho yêu cầu trong [S
 | --- | --- |
 | [`../app.py`](../app.py) | Thêm `state.evaluation`; gọi AI sau khi tên nhập đã hợp lệ; thêm route `POST /api/evaluate`. |
 | [`../templates/components/evaluation.html`](../templates/components/evaluation.html) | Thay khung rỗng bằng phần hiển thị hai điểm, hai nhận xét và tóm tắt; có thông báo khi AI lỗi. |
-| [`../static/style.css`](../static/style.css) | Thêm kiểu dáng cho điểm số, nhận xét, tóm tắt và thông báo lỗi. |
+| [`../public/style.css`](../public/style.css) | Thêm kiểu dáng cho điểm số, nhận xét, tóm tắt và thông báo lỗi. File này ban đầu ở `static/`, sau đó được chuyển sang `public/` để phù hợp cách Vercel phục vụ CSS. |
 | [`../requirements.txt`](../requirements.txt) | Thêm thư viện Python `openai>=2,<3`. |
 | [`../.gitignore`](../.gitignore) | Bỏ qua `.env`, `.env.*` và `.vercel/` để hạn chế đưa dữ liệu cấu hình cục bộ vào Git. |
 | [`../PROJECT.md`](../PROJECT.md) | Ghi công nghệ AI đã chọn, hướng dẫn biến môi trường, endpoint và tiến độ hoàn thành bước 5. |

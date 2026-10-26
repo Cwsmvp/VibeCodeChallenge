@@ -9,7 +9,7 @@ from evaluation import EvaluationError, evaluate_brand
 from slug import Transtoslug
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="public", static_url_path="")
 
 
 @app.route("/", methods=["GET", "POST"])
