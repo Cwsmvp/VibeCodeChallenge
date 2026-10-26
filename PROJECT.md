@@ -4,13 +4,13 @@
 
 Web một trang viết bằng Python cho cuộc thi vibe coding. Người dùng nhập tên thương hiệu; ứng dụng chuẩn hóa tên thành slug, dùng AI đánh giá độ dễ nhớ và dễ đọc, đồng thời gợi ý đúng 5 biến thể tên miền theo danh sách đuôi cấu hình. Trạng thái tên miền được kiểm tra ở **chế độ demo** và phải luôn ghi rõ **“Kết quả demo”** trên giao diện, tránh gây hiểu lầm rằng đã kiểm tra khả dụng thực tế. AI còn gợi ý đúng 3 slogan và 1 tagline. Người dùng có thể sao chép toàn bộ kết quả hoặc nhấn **“Đăng ký tên miền”** để mở trang nhà tài trợ.
 
-Địa chỉ trang nhà tài trợ chưa được cung cấp; lưu dưới dạng cấu hình để điền khi triển khai. AI đánh giá tên dùng OpenAI Responses API; trạng thái tên miền demo dùng quy tắc xác định trong `domains.py`, không tra cứu thực tế.
+Địa chỉ trang nhà tài trợ chưa được cung cấp; lưu dưới dạng cấu hình để điền khi triển khai. AI đánh giá tên dùng Gemini Interactions API; trạng thái tên miền demo dùng quy tắc xác định trong `domains.py`, không tra cứu thực tế.
 
 ## Nền tảng và cấu trúc
 
 - Framework: **Flask 3.1.x** (Python 3.9 trở lên). Flask xử lý trang và các bước logic sau; Jinja dựng giao diện HTML.
 - Giao diện: HTML/CSS thuần, không cần framework giao diện hoặc bước biên dịch. Thiết kế theo mobile-first.
-- `app.py`: điểm vào Flask, route trang chủ và `POST /api/evaluate`. `slug.py`: hàm `Transtoslug(brand)` chuẩn hóa tên. `domains.py`: danh sách đuôi cấu hình và trạng thái demo. `evaluation.py`: system prompt, gọi OpenAI và kiểm tra JSON trả về.
+- `app.py`: điểm vào Flask, route trang chủ và `POST /api/evaluate`. `slug.py`: hàm `Transtoslug(brand)` chuẩn hóa tên. `domains.py`: danh sách đuôi cấu hình và trạng thái demo. `evaluation.py`: system prompt, gọi Gemini và kiểm tra JSON trả về.
 - `templates/index.html`: bố cục trang; `templates/components/`: các khối giao diện riêng; `public/style.css`: toàn bộ kiểu dáng. Flask dùng thư mục `public` làm nguồn CSS khi chạy cục bộ; Vercel phục vụ thư mục này trực tiếp.
 - `requirements.txt`: phụ thuộc Python. Cài và chạy cục bộ theo hướng dẫn bên dưới.
 - Bước 5 đã nối khối “Đánh giá tên” với AI phía máy chủ; khi chưa cấu hình API key hoặc AI gặp lỗi, phần tên miền vẫn hoạt động.
@@ -28,22 +28,22 @@ Những lần sau chỉ cần lệnh cuối. Mở `http://127.0.0.1:5000/` để
 
 ## Cấu hình AI và triển khai
 
-1. Tạo API key trong [OpenAI Platform](https://platform.openai.com/api-keys). API key này thuộc OpenAI API và có thể phát sinh chi phí khi gọi mô hình.
+1. Tạo Gemini API key trong [Google AI Studio](https://aistudio.google.com/apikey). Việc gọi mô hình có thể phát sinh chi phí hoặc gặp giới hạn lượt gọi tùy tài khoản và gói sử dụng.
 2. Trong PowerShell đang dùng để chạy app, nhập khóa qua lời nhắc ẩn (không ghi khóa vào code hoặc lệnh có thể nằm trong lịch sử):
 
    ```powershell
-   $apiSecret = Read-Host "OpenAI API key" -AsSecureString
-   $env:OPENAI_API_KEY = [System.Net.NetworkCredential]::new("", $apiSecret).Password
+   $apiSecret = Read-Host "Gemini API key" -AsSecureString
+   $env:GEMINI_API_KEY = [System.Net.NetworkCredential]::new("", $apiSecret).Password
    Remove-Variable apiSecret
    .\.venv\Scripts\python.exe -m flask --app app run --debug
    ```
 
 3. Mở `http://127.0.0.1:5000/`, nhập tên rồi bấm **Phân tích**. Endpoint `POST /api/evaluate` nhận JSON `{ "brand": "..." }`, giới hạn 50 ký tự và trả JSON `evaluation` đúng mẫu bên dưới. Ô nhập trên trang vẫn giới hạn 2–30 ký tự theo bước 2.
-4. Khi triển khai bằng Vercel, kết nối repo; `app.py` là entrypoint, `requirements.txt` khai báo thư viện và `vercel.json` chọn Flask, đặt lệnh build và thư mục đầu ra về mặc định của Flask. Dự án không cần Vite. Trong **Project Settings → Environment Variables**, thêm `OPENAI_API_KEY` cho môi trường cần dùng (Preview/Production). Có thể thêm `OPENAI_MODEL`; mặc định là `gpt-4o-mini`. Triển khai lại sau khi thêm hoặc đổi biến. Không dùng biến công khai như `NEXT_PUBLIC_...` cho khóa.
+4. Khi triển khai bằng Vercel, kết nối repo; `app.py` là entrypoint, `requirements.txt` khai báo thư viện và `vercel.json` chọn Flask, đặt lệnh build và thư mục đầu ra về mặc định của Flask. Dự án không cần Vite. Trong **Project Settings → Environment Variables**, thêm `GEMINI_API_KEY` cho môi trường cần dùng (Preview/Production). Có thể thêm `GEMINI_MODEL`; mặc định là `gemini-3.5-flash-lite`. Triển khai lại sau khi thêm hoặc đổi biến. Biến `OPENAI_API_KEY` cũ không còn được ứng dụng sử dụng. Không dùng biến công khai như `NEXT_PUBLIC_...` cho khóa.
 
 Nếu Vercel từng được cấu hình cho Vite và báo `vite: command not found`, mở **Project Settings → Build and Deployment**: chọn **Framework Preset: Flask**, tắt **Build Command Override** đang chứa `vite build` và bỏ **Output Directory Override** như `dist` nếu có. Đẩy commit chứa `vercel.json` lên repo rồi redeploy. Vercel cần dùng thư mục gốc chứa `app.py` làm **Root Directory**.
 
-Lời gọi OpenAI có timeout 15 giây và tắt retry tự động để tránh kéo dài thời gian chờ. Khi thiếu khóa, timeout hoặc AI trả dữ liệu sai, API trả lỗi JSON và giao diện giữ lại kết quả tên miền demo. Không cần đưa API key vào trình duyệt.
+Lời gọi Gemini có timeout 15 giây và không tự retry để tránh kéo dài thời gian chờ. Khi thiếu khóa, timeout hoặc AI trả dữ liệu sai, API trả lỗi JSON và giao diện giữ lại kết quả tên miền demo. Không cần đưa API key vào trình duyệt.
 
 ## Kế hoạch 8 bước
 

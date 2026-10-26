@@ -109,3 +109,7 @@ Sau khi kết nối repo vào Vercel, mở **Project Settings → Environment Va
 - Các kiểm thử Step 6 dùng mô phỏng phản hồi OpenAI. Chúng xác nhận API trả mã lỗi đúng, gọi AI với system prompt, schema, timeout 15 giây và khóa phía máy chủ, đồng thời kiểm tra giao diện khi có kết quả giả lập.
 - **Chưa gọi OpenAI thật** vì chưa có API key trong môi trường làm việc. Vì vậy chưa xác minh chất lượng nhận xét thực tế hoặc tương thích của một lần gọi API thật.
 - **Chưa triển khai Vercel**; phần hướng dẫn triển khai là cấu hình cần thực hiện sau, không phải kết quả đã kiểm chứng trên hosting.
+## Cập nhật sau Step 6: chuyển sang Gemini
+
+Ứng dụng hiện dùng Gemini Interactions API cho phần đánh giá tên. Các phần trên ghi lại cách Step 6 được triển khai ban đầu bằng OpenAI, nên tên biến và đoạn mã OpenAI trong báo cáo chỉ có giá trị lịch sử. Cấu hình đang dùng là `GEMINI_API_KEY`, tùy chọn `GEMINI_MODEL` (mặc định `gemini-3.5-flash-lite`). Xem [`PROJECT.md`](../PROJECT.md) để biết cách chạy và cấu hình trên Vercel.
+
