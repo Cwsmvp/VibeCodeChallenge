@@ -39,7 +39,9 @@ Những lần sau chỉ cần lệnh cuối. Mở `http://127.0.0.1:5000/` để
    ```
 
 3. Mở `http://127.0.0.1:5000/`, nhập tên rồi bấm **Phân tích**. Endpoint `POST /api/evaluate` nhận JSON `{ "brand": "..." }`, giới hạn 50 ký tự và trả JSON `evaluation` đúng mẫu bên dưới. Ô nhập trên trang vẫn giới hạn 2–30 ký tự theo bước 2.
-4. Khi triển khai bằng Vercel, kết nối repo và chọn Python/Flask; `app.py` là entrypoint, `requirements.txt` khai báo thư viện. Dự án dùng Flask trực tiếp, không cần Vite hoặc lệnh build giao diện. Trong **Project Settings → Environment Variables**, thêm `OPENAI_API_KEY` cho môi trường cần dùng (Preview/Production). Có thể thêm `OPENAI_MODEL`; mặc định là `gpt-4o-mini`. Triển khai lại sau khi thêm hoặc đổi biến. Không dùng biến công khai như `NEXT_PUBLIC_...` cho khóa.
+4. Khi triển khai bằng Vercel, kết nối repo; `app.py` là entrypoint, `requirements.txt` khai báo thư viện và `vercel.json` chọn Flask, bỏ lệnh build giao diện. Dự án không cần Vite. Trong **Project Settings → Environment Variables**, thêm `OPENAI_API_KEY` cho môi trường cần dùng (Preview/Production). Có thể thêm `OPENAI_MODEL`; mặc định là `gpt-4o-mini`. Triển khai lại sau khi thêm hoặc đổi biến. Không dùng biến công khai như `NEXT_PUBLIC_...` cho khóa.
+
+Nếu Vercel từng được cấu hình cho Vite và báo `vite: command not found`, mở **Project Settings → Build and Deployment**: chọn **Framework Preset: Flask**, tắt **Build Command Override** đang chứa `vite build` và bỏ **Output Directory Override** như `dist` nếu có. Đẩy commit chứa `vercel.json` lên repo rồi redeploy. Vercel cần dùng thư mục gốc chứa `app.py` làm **Root Directory**.
 
 Lời gọi OpenAI có timeout 15 giây và tắt retry tự động để tránh kéo dài thời gian chờ. Khi thiếu khóa, timeout hoặc AI trả dữ liệu sai, API trả lỗi JSON và giao diện giữ lại kết quả tên miền demo. Không cần đưa API key vào trình duyệt.
 
