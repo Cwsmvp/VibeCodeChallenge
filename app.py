@@ -60,4 +60,7 @@ def api_evaluate():
     try:
         return jsonify(evaluate_brand(brand))
     except EvaluationError as exc:
-        return jsonify({"error": str(exc)}), exc.status_code
+        body = {"error": str(exc)}
+        if exc.provider_status is not None:
+            body["provider_status"] = exc.provider_status
+        return jsonify(body), exc.status_code

@@ -3,7 +3,7 @@
 import json
 import os
 
-from openai import APIError, APITimeoutError, OpenAI
+from openai import APIError, APIStatusError, APITimeoutError, OpenAI
 
 
 SYSTEM_PROMPT = """Bạn là chuyên gia đặt tên thương hiệu cho thị trường Việt Nam.
@@ -40,9 +40,10 @@ EVALUATION_SCHEMA = {
 class EvaluationError(Exception):
     """Lỗi đánh giá có thông báo và mã HTTP an toàn cho người dùng."""
 
-    def __init__(self, message: str, status_code: int):
+    def __init__(self, message: str, status_code: int, provider_status: int | None = None):
         super().__init__(message)
         self.status_code = status_code
+        self.provider_status = provider_status
 
 
 def _validated_result(data: object) -> dict:
@@ -90,6 +91,12 @@ def evaluate_brand(brand: str) -> dict:
         )
     except APITimeoutError as exc:
         raise EvaluationError("Đánh giá AI quá thời gian chờ 15 giây", 504) from exc
+    except APIStatusError as exc:
+        raise EvaluationError(
+            "Chưa thể đánh giá tên lúc này. Vui lòng thử lại sau",
+            502,
+            provider_status=exc.status_code,
+        ) from exc
     except APIError as exc:
         raise EvaluationError("Chưa thể đánh giá tên lúc này. Vui lòng thử lại sau", 502) from exc
 

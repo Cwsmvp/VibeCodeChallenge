@@ -6,6 +6,9 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import httpx
+from openai import APIStatusError
+
 from app import app
 from evaluation import EvaluationError, evaluate_brand
 
@@ -41,6 +44,12 @@ class EvaluationApiTests(unittest.TestCase):
             response = self.client.post("/api/evaluate", json={"brand": "Cà Phê Gió"})
             self.assertEqual(response.status_code, 504)
             self.assertEqual(response.get_json(), {"error": "Hết thời gian chờ"})
+
+    def test_provider_status_is_returned_without_provider_body(self):
+        with patch("app.evaluate_brand", side_effect=EvaluationError("Lỗi AI", 502, provider_status=401)):
+            response = self.client.post("/api/evaluate", json={"brand": "Cà Phê Gió"})
+            self.assertEqual(response.status_code, 502)
+            self.assertEqual(response.get_json(), {"error": "Lỗi AI", "provider_status": 401})
 
     def test_success_returns_contract_and_page_displays_it(self):
         with patch("app.evaluate_brand", return_value=RESULT) as evaluate:
@@ -80,6 +89,17 @@ class EvaluationServiceTests(unittest.TestCase):
             with self.assertRaises(EvaluationError) as raised:
                 evaluate_brand("Cà Phê Gió")
             self.assertEqual(raised.exception.status_code, 502)
+
+    def test_provider_error_keeps_only_status_code(self):
+        upstream_response = httpx.Response(401, request=httpx.Request("POST", "https://api.openai.com/v1/responses"))
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}), patch("evaluation.OpenAI") as client_class:
+            client_class.return_value.responses.create.side_effect = APIStatusError(
+                "secret provider details", response=upstream_response, body={"private": "value"}
+            )
+            with self.assertRaises(EvaluationError) as raised:
+                evaluate_brand("Cà Phê Gió")
+            self.assertEqual(raised.exception.provider_status, 401)
+            self.assertNotIn("secret", str(raised.exception))
 
 
 if __name__ == "__main__":
