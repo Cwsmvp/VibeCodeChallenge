@@ -1,11 +1,24 @@
-<section class="result-card" aria-labelledby="slogans-title">
+<section class="result-card" aria-labelledby="slogans-title" id="slogans-card" data-brand="{{ state.brand }}">
   <div class="card-topline">
     <span class="card-icon" aria-hidden="true">“</span>
     <span class="card-number" aria-hidden="true">03 / 03</span>
   </div>
   <h2 id="slogans-title">Slogan &amp; Tagline</h2>
-  <div class="empty-state" aria-label="Chưa có slogan và tagline">
-    <span class="empty-orbit" aria-hidden="true"></span>
-    <p>Slogan và tagline sẽ xuất hiện ở đây</p>
+  <div id="slogans-content" aria-live="polite">
+    {% if state.slogans %}
+      <ol class="slogan-list">
+        {% for slogan in state.slogans %}<li>{{ slogan }}</li>{% endfor %}
+      </ol>
+      <div class="tagline-block"><span>TAGLINE</span><p>{{ state.tagline }}</p></div>
+    {% else %}
+      <div class="empty-state" aria-label="Chưa có slogan và tagline">
+        <span class="empty-orbit" aria-hidden="true"></span>
+        <p>Slogan và tagline sẽ xuất hiện ở đây</p>
+      </div>
+    {% endif %}
   </div>
+  {% if state.slug %}
+    <p class="slogans-feedback" id="slogans-feedback" role="status">{{ slogans_error or '' }}</p>
+    <button class="button button-secondary slogans-retry" id="slogans-retry" type="button">Gợi ý lại <span aria-hidden="true">↻</span></button>
+  {% endif %}
 </section>

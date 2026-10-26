@@ -10,7 +10,7 @@ Web một trang viết bằng Python cho cuộc thi vibe coding. Người dùng 
 
 - Framework: **Flask 3.1.x** (Python 3.9 trở lên). Flask xử lý trang và các bước logic sau; Jinja dựng giao diện HTML.
 - Giao diện: HTML/CSS thuần, không cần framework giao diện hoặc bước biên dịch. Thiết kế theo mobile-first.
-- `app.py`: điểm vào Flask, route trang chủ và `POST /api/evaluate`. `slug.py`: hàm `Transtoslug(brand)` chuẩn hóa tên. `domains.py`: danh sách đuôi cấu hình và trạng thái demo. `evaluation.py`: system prompt, gọi Gemini và kiểm tra JSON trả về.
+- `app.py`: điểm vào Flask, route trang chủ, `POST /api/evaluate` và `POST /api/slogans`. `slug.py`: hàm `Transtoslug(brand)` chuẩn hóa tên. `domains.py`: danh sách đuôi cấu hình và trạng thái demo. `evaluation.py`: gọi Gemini và kiểm tra dữ liệu đánh giá. `slogans.py`: prompt và kiểm tra 3 slogan cùng tagline.
 - `templates/index.html`: bố cục trang; `templates/components/`: các khối giao diện riêng; `public/style.css`: toàn bộ kiểu dáng. Flask dùng thư mục `public` làm nguồn CSS khi chạy cục bộ; Vercel phục vụ thư mục này trực tiếp.
 - `requirements.txt`: phụ thuộc Python. Cài và chạy cục bộ theo hướng dẫn bên dưới.
 - Bước 5 đã nối khối “Đánh giá tên” với AI phía máy chủ; khi chưa cấu hình API key hoặc AI gặp lỗi, phần tên miền vẫn hoạt động.
@@ -38,7 +38,7 @@ Những lần sau chỉ cần lệnh cuối. Mở `http://127.0.0.1:5000/` để
    .\.venv\Scripts\python.exe -m flask --app app run --debug
    ```
 
-3. Mở `http://127.0.0.1:5000/`, nhập tên rồi bấm **Phân tích**. Endpoint `POST /api/evaluate` nhận JSON `{ "brand": "..." }`, giới hạn 50 ký tự và trả JSON `evaluation` đúng mẫu bên dưới. Ô nhập trên trang vẫn giới hạn 2–30 ký tự theo bước 2.
+3. Mở `http://127.0.0.1:5000/`, nhập tên rồi bấm **Phân tích**. Endpoint `POST /api/evaluate` nhận JSON `{ "brand": "..." }`, giới hạn 50 ký tự và trả JSON `evaluation` đúng mẫu bên dưới. `POST /api/slogans` nhận cùng mẫu đầu vào, trả `{ "slogans": ["...", "...", "..."], "tagline": "..." }`. Nút **Gợi ý lại** gọi endpoint slogan để thay phương án trên trang. Ô nhập trên trang vẫn giới hạn 2–30 ký tự theo bước 2.
 4. Khi triển khai bằng Vercel, kết nối repo; `app.py` là entrypoint, `requirements.txt` khai báo thư viện và `vercel.json` chọn Flask, đặt lệnh build và thư mục đầu ra về mặc định của Flask. Dự án không cần Vite. Trong **Project Settings → Environment Variables**, thêm `GEMINI_API_KEY` cho môi trường cần dùng (Preview/Production). Có thể thêm `GEMINI_MODEL`; mặc định là `gemini-3.5-flash-lite`. Triển khai lại sau khi thêm hoặc đổi biến. Biến `OPENAI_API_KEY` cũ không còn được ứng dụng sử dụng. Không dùng biến công khai như `NEXT_PUBLIC_...` cho khóa.
 
 Nếu Vercel từng được cấu hình cho Vite và báo `vite: command not found`, mở **Project Settings → Build and Deployment**: chọn **Framework Preset: Flask**, tắt **Build Command Override** đang chứa `vite build` và bỏ **Output Directory Override** như `dist` nếu có. Đẩy commit chứa `vercel.json` lên repo rồi redeploy. Vercel cần dùng thư mục gốc chứa `app.py` làm **Root Directory**.
@@ -65,7 +65,7 @@ Lời gọi Gemini có timeout 15 giây và không tự retry để tránh kéo 
 
 ## Hợp đồng dữ liệu
 
-`state` là dữ liệu kết quả để hiển thị và sao chép. `domains` có đúng 5 phần tử khi tên nhập hợp lệ, mỗi phần tử có `domain` và `status` (`available` hoặc `taken`). `slogans` sẽ có đúng 3 phần tử khi đến bước 6. Điểm số và nhận xét do AI trả về, trong đó `memorability` là độ dễ nhớ và `pronounceability` là độ dễ đọc.
+`state` là dữ liệu kết quả để hiển thị và sao chép. `domains` có đúng 5 phần tử khi tên nhập hợp lệ, mỗi phần tử có `domain` và `status` (`available` hoặc `taken`). `slogans` có đúng 3 phần tử khi AI tạo thành công; mỗi câu tối đa 10 từ, tagline tối đa 15 từ. Điểm số và nhận xét do AI trả về, trong đó `memorability` là độ dễ nhớ và `pronounceability` là độ dễ đọc.
 
 Quy tắc demo trong `Checkdomain(domain)`: slug dưới 5 ký tự hoặc nằm trong `shop`, `store`, `viet`, `coffee`, `online`, `vn`, `fashion` thì `taken`; còn lại lấy tổng mã Unicode của tên miền chia dư 3, dư 0 là `taken`, khác 0 là `available`. Kết quả chỉ để minh họa.
 
@@ -90,4 +90,4 @@ state = {
 }
 ```
 
-Tiến độ: đã hoàn thành bước 1 (khung giao diện tĩnh), bước 2 (nhập tên, kiểm tra hợp lệ, tạo slug), bước 3 (sinh năm biến thể tên miền), bước 4 (trạng thái tên miền demo) và bước 5 (đánh giá tên bằng AI phía máy chủ). Các bước 6–8 chưa thực hiện.
+Tiến độ: đã hoàn thành bước 1 (khung giao diện tĩnh), bước 2 (nhập tên, kiểm tra hợp lệ, tạo slug), bước 3 (sinh năm biến thể tên miền), bước 4 (trạng thái tên miền demo), bước 5 (đánh giá tên bằng AI phía máy chủ) và bước 6 (3 slogan, 1 tagline, gợi ý lại). Các bước 7–8 chưa thực hiện.

@@ -79,7 +79,7 @@ def _validated_result(data: object) -> dict:
     return data
 
 
-def _model_result(response: object) -> dict:
+def _model_result(response: object) -> object:
     """Lấy JSON từ bước trả lời của model trong Gemini Interactions API."""
     if not isinstance(response, dict) or response.get("status") != "completed":
         raise ValueError("AI không trả về nội dung hoàn chỉnh")
@@ -92,23 +92,23 @@ def _model_result(response: object) -> dict:
     parts = outputs[0]["content"]
     if len(parts) != 1 or not isinstance(parts[0], dict) or parts[0].get("type") != "text":
         raise ValueError("AI không trả về JSON")
-    return _validated_result(json.loads(parts[0]["text"]))
+    return json.loads(parts[0]["text"])
 
 
-def evaluate_brand(brand: str) -> dict:
-    """Gọi Gemini với giới hạn 15 giây và trả về evaluation đã kiểm tra."""
+def call_gemini(brand: str, prompt: str, schema: dict) -> object:
+    """Gọi Gemini với JSON Schema; khóa chỉ nằm ở phía máy chủ."""
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         raise EvaluationError("Đánh giá AI hiện chưa sẵn sàng. Vui lòng thử lại sau", 503)
 
     payload = {
         "model": os.environ.get("GEMINI_MODEL") or "gemini-3.5-flash-lite",
-        "system_instruction": SYSTEM_PROMPT,
+        "system_instruction": prompt,
         "input": brand,
         "response_format": {
             "type": "text",
             "mime_type": "application/json",
-            "schema": EVALUATION_SCHEMA,
+            "schema": schema,
         },
         "store": False,
     }
@@ -131,6 +131,8 @@ def evaluate_brand(brand: str) -> dict:
                 provider_code = code.lower()
         except (ValueError, AttributeError, OSError):
             pass
+        finally:
+            exc.close()
         raise EvaluationError(
             "Chưa thể đánh giá tên lúc này. Vui lòng thử lại sau",
             502,
@@ -147,4 +149,12 @@ def evaluate_brand(brand: str) -> dict:
     try:
         return _model_result(response)
     except (ValueError, TypeError, KeyError) as exc:
+        raise EvaluationError("AI chưa trả về kết quả hợp lệ. Vui lòng thử lại", 502) from exc
+
+
+def evaluate_brand(brand: str) -> dict:
+    """Trả về hai tiêu chí đánh giá tên đã kiểm tra cấu trúc."""
+    try:
+        return _validated_result(call_gemini(brand, SYSTEM_PROMPT, EVALUATION_SCHEMA))
+    except ValueError as exc:
         raise EvaluationError("AI chưa trả về kết quả hợp lệ. Vui lòng thử lại", 502) from exc
