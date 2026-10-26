@@ -8,6 +8,7 @@
     <title>Trợ lý đặt tên thương hiệu &amp; tên miền</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="{{ url_for('static', filename='slogans.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='actions.js') }}" defer></script>
   </head>
   <body>
     <main class="page-shell">
@@ -27,5 +28,6 @@
 
       {% include 'components/actions.html' %}
     </main>
+    <script>window.appState = {{ state | tojson }};</script>
   </body>
 </html>

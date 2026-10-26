@@ -33,6 +33,8 @@ document.addEventListener("DOMContentLoaded", () => {
       phrase.textContent = result.tagline;
       tagline.append(label, phrase);
       content.replaceChildren(list, tagline);
+      window.appState.slogans = result.slogans;
+      window.appState.tagline = result.tagline;
       feedback.textContent = "Đã tạo phương án mới.";
     } catch (error) {
       feedback.textContent = error.message || "Chưa thể gợi ý slogan lúc này.";

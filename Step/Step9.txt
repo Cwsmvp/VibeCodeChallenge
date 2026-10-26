@@ -1,2 +1,0 @@
-- ktra tổng thể(8)
-Hãy rà soát toàn bộ dự án so với 5 yêu cầu trong PROJECT.md. Với mỗi yêu cầu, cho biết đã đạt chưa và bằng chứng ở đâu trong code. Sau đó kiểm tra: lỗi bảo mật (đặc biệt khóa API), xử lý lỗi, trường hợp bất thường (tên quá dài, ký tự lạ, nhập chỉ có dấu cách, nội dung cố tình bắt AI làm sai), và hiển thị trên điện thoại. Liệt kê theo mức độ nghiêm trọng, CHƯA sửa gì cho đến khi tôi đồng ý.
