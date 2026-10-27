@@ -1,10 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
   const card = document.getElementById("slogans-card");
   const button = document.getElementById("slogans-retry");
-  if (!card || !button) return;
+  if (!card || !button || !window.appState?.slug) return;
 
   const content = document.getElementById("slogans-content");
   const feedback = document.getElementById("slogans-feedback");
+  const state = window.appState;
+  const ai = window.brandAI;
+  state.pending ??= {};
   const brandInput = document.getElementById("brand-name");
   let pending = false;
   const brandChanged = () => brandInput && brandInput.value.trim().normalize("NFC") !== card.dataset.brand;
@@ -17,20 +20,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   updateButton();
 
-  button.addEventListener("click", async () => {
+  async function loadSlogans() {
     if (pending || brandChanged()) return;
-    pending = true;
+    pending = state.pending.slogans = true;
     updateButton();
-    content.setAttribute("aria-busy", "true");
-    feedback.textContent = "Đang tìm phương án mới…";
+    const hasResults = state.slogans.length > 0;
+    const loader = ai.loading(content, hasResults ? "Đang tìm phương án mới…" : "Đang tạo slogan và tagline…", hasResults);
+    feedback.textContent = "";
     try {
-      const response = await fetch("/api/slogans", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brand: card.dataset.brand, previous_tagline: window.appState.tagline || "" }),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Chưa thể gợi ý slogan lúc này.");
+      const result = await ai.request("/api/slogans", { brand: card.dataset.brand, previous_tagline: state.tagline || "" });
 
       const list = document.createElement("ol");
       list.className = "slogan-list";
@@ -51,12 +49,15 @@ document.addEventListener("DOMContentLoaded", () => {
       window.appState.tagline = result.tagline;
       feedback.textContent = "Đã tạo phương án mới.";
     } catch (error) {
-      feedback.textContent = `${error.message || "Chưa thể gợi ý slogan lúc này."} Kết quả đang hiển thị chưa được thay đổi.`;
+      feedback.textContent = `${error.message || "Chưa thể gợi ý slogan lúc này."}${hasResults ? " Kết quả đang hiển thị chưa được thay đổi." : ""}`;
     } finally {
-      pending = false;
+      loader.remove();
+      pending = state.pending.slogans = false;
       updateButton();
-      content.removeAttribute("aria-busy");
+      content.setAttribute("aria-busy", "false");
       if (brandChanged()) feedback.textContent = "Tên thương hiệu đã thay đổi. Bấm Phân tích để tạo kết quả cho tên mới.";
     }
-  });
+  }
+  button.addEventListener("click", loadSlogans);
+  loadSlogans();
 });

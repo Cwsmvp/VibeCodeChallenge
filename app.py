@@ -1,6 +1,5 @@
 """Ứng dụng Flask cho Trợ lý đặt tên thương hiệu & tên miền."""
 
-from concurrent.futures import ThreadPoolExecutor
 import unicodedata
 
 from flask import Flask, jsonify, render_template, request
@@ -19,8 +18,6 @@ def index():
     """Nhận tên thương hiệu, tạo slug và kết quả tên miền demo."""
     state = {"brand": "", "slug": "", "domains": [], "evaluation": None, "slogans": [], "tagline": ""}
     error = None
-    evaluation_error = None
-    slogans_error = None
 
     if request.method == "POST":
         brand = unicodedata.normalize("NFC", request.form.get("brand", "").strip())
@@ -39,22 +36,8 @@ def index():
                 state["domains"] = Domains(slug)
                 for item in state["domains"]:
                     item["status"] = Checkdomain(item["domain"])
-                with ThreadPoolExecutor(max_workers=2) as pool:
-                    evaluation_task = pool.submit(evaluate_brand, brand)
-                    slogans_task = pool.submit(suggest_slogans, brand)
-                    try:
-                        state["evaluation"] = evaluation_task.result()
-                    except EvaluationError as exc:
-                        evaluation_error = str(exc)
-                    try:
-                        suggestions = slogans_task.result()
-                        state["slogans"] = suggestions["slogans"]
-                        state["tagline"] = suggestions["tagline"]
-                    except EvaluationError as exc:
-                        slogans_error = str(exc)
 
-    return render_template("index.html", state=state, error=error,
-                           evaluation_error=evaluation_error, slogans_error=slogans_error)
+    return render_template("index.html", state=state, error=error)
 
 
 @app.post("/api/evaluate")

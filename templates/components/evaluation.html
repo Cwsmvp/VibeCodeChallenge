@@ -4,24 +4,20 @@
     <span class="card-number" aria-hidden="true">01 / 03</span>
   </div>
   <h2 id="evaluation-title">Đánh giá tên</h2>
-  {% if state.evaluation %}
-    <div class="evaluation-body">
-      <div class="evaluation-metric">
-        <div><h3>Dễ nhớ</h3><p>{{ state.evaluation.memorability.comment }}</p></div>
-        <span class="evaluation-score">{{ state.evaluation.memorability.score }}<small>/10</small></span>
-      </div>
-      <div class="evaluation-metric">
-        <div><h3>Dễ đọc &amp; phát âm</h3><p>{{ state.evaluation.pronounceability.comment }}</p></div>
-        <span class="evaluation-score">{{ state.evaluation.pronounceability.score }}<small>/10</small></span>
-      </div>
-      <p class="evaluation-summary">{{ state.evaluation.summary }}</p>
-    </div>
-  {% elif evaluation_error %}
-    <p class="evaluation-error" role="status">{{ evaluation_error }}</p>
+  <div id="evaluation-content" class="ai-content" aria-live="polite" aria-busy="{{ 'true' if state.slug else 'false' }}">
+  {% if state.slug %}
+    {% with loading_message = 'Đang đánh giá tên thương hiệu…' %}
+      {% include 'components/loading.html' %}
+    {% endwith %}
   {% else %}
     <div class="empty-state" aria-label="Chưa có đánh giá">
       <span class="empty-orbit" aria-hidden="true"></span>
       <p>Đánh giá sẽ xuất hiện ở đây</p>
     </div>
+  {% endif %}
+  </div>
+  {% if state.slug %}
+    <button class="button button-secondary slogans-retry" id="evaluation-retry" type="button" disabled>Thử lại <span aria-hidden="true">↻</span></button>
+    <noscript><p class="evaluation-error">Bật JavaScript để tải kết quả AI.</p></noscript>
   {% endif %}
 </section>

@@ -15,7 +15,7 @@ function formatResults(state) {
     lines.push(`Dễ đọc & phát âm: ${pronounceability.score}/10 — ${pronounceability.comment}`);
     lines.push(`Tổng kết: ${summary}`);
   } else {
-    lines.push("Chưa có đánh giá AI.");
+    lines.push(state.pending?.evaluation ? "Đang tải đánh giá AI…" : "Chưa có đánh giá AI.");
   }
 
   lines.push("", "GỢI Ý TÊN MIỀN — KẾT QUẢ DEMO, CHỈ MANG TÍNH MINH HỌA");
@@ -27,9 +27,9 @@ function formatResults(state) {
   if (state.slogans.length) {
     state.slogans.forEach((slogan, index) => lines.push(`${index + 1}. ${slogan}`));
   } else {
-    lines.push("Chưa có slogan AI.");
+    lines.push(state.pending?.slogans ? "Đang tải slogan AI…" : "Chưa có slogan AI.");
   }
-  lines.push(`Tagline: ${state.tagline || "Chưa có tagline AI."}`);
+  lines.push(`Tagline: ${state.tagline || (state.pending?.slogans ? "Đang tải tagline AI…" : "Chưa có tagline AI.")}`);
   return lines.join("\n");
 }
 

@@ -53,12 +53,26 @@ class SloganTests(unittest.TestCase):
 
     @patch("app.suggest_slogans", return_value=RESULT)
     @patch("app.evaluate_brand", return_value=None)
-    def test_initial_page_renders_tagline_and_copy_state(self, _evaluate, suggest):
+    def test_initial_page_returns_domains_and_loading_without_calling_ai(self, evaluate, suggest):
         response = app.test_client().post("/", data={"brand": "Mây"})
         self.assertEqual(response.status_code, 200)
-        self.assertIn(RESULT["tagline"], response.get_data(as_text=True))
-        self.assertIn("window.appState =", response.get_data(as_text=True))
-        suggest.assert_called_once_with("Mây")
+        html = response.get_data(as_text=True)
+        self.assertIn("may.com", html)
+        self.assertIn("Đang đánh giá tên thương hiệu", html)
+        self.assertIn("Đang tạo slogan và tagline", html)
+        self.assertIn("window.appState =", html)
+        self.assertNotIn(RESULT["tagline"], html)
+        evaluate.assert_not_called()
+        suggest.assert_not_called()
+
+    @patch("app.suggest_slogans")
+    @patch("app.evaluate_brand")
+    def test_invalid_brand_does_not_start_loading_or_ai(self, evaluate, suggest):
+        response = app.test_client().post("/", data={"brand": "!"})
+        html = response.get_data(as_text=True)
+        self.assertNotIn('class="ai-loading"', html)
+        evaluate.assert_not_called()
+        suggest.assert_not_called()
 
 
 if __name__ == "__main__":
