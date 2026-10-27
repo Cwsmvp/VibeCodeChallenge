@@ -94,8 +94,12 @@ def api_slogans():
     if len(brand) > 50:
         return jsonify({"error": "Tên thương hiệu không được vượt quá 50 ký tự"}), 400
 
+    previous_tagline = payload.get("previous_tagline", "")
+    if not isinstance(previous_tagline, str) or len(previous_tagline.split()) > 15:
+        return jsonify({"error": "Tagline trước đó phải là chuỗi tối đa 15 từ"}), 400
+
     try:
-        return jsonify(suggest_slogans(brand))
+        return jsonify(suggest_slogans(brand, previous_tagline))
     except EvaluationError as exc:
         body = {"error": str(exc)}
         if exc.provider_status is not None:

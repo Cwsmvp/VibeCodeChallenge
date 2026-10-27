@@ -43,9 +43,11 @@ Những lần sau chỉ cần lệnh cuối. Mở `http://127.0.0.1:5000/` để
 
 Nếu Vercel từng được cấu hình cho Vite và báo `vite: command not found`, mở **Project Settings → Build and Deployment**: chọn **Framework Preset: Flask**, tắt **Build Command Override** đang chứa `vite build` và bỏ **Output Directory Override** như `dist` nếu có. Đẩy commit chứa `vercel.json` lên repo rồi redeploy. Vercel cần dùng thư mục gốc chứa `app.py` làm **Root Directory**.
 
-Lời gọi Gemini có timeout 15 giây và không tự retry để tránh kéo dài thời gian chờ. Khi thiếu khóa, timeout hoặc AI trả dữ liệu sai, API trả lỗi JSON và giao diện giữ lại kết quả tên miền demo. Không cần đưa API key vào trình duyệt.
+Lời gọi Gemini có timeout kết nối/đọc mặc định 30 giây, cấu hình bằng `GEMINI_TIMEOUT_SECONDS` (số nguyên 1–120). Đây là thời gian chờ thao tác mạng, không phải cam kết tổng thời gian xử lý. Khi triển khai, giới hạn thời gian chạy của hosting cần đủ lớn cho mức chờ đã chọn và phần xử lý còn lại; redeploy sau khi đổi biến môi trường. Không tự retry để tránh kéo dài chờ và gọi trùng khi yêu cầu trước có thể vẫn đang xử lý. Khi thiếu khóa, timeout hoặc AI trả dữ liệu sai, API trả lỗi JSON và giao diện giữ lại kết quả tên miền demo. Thông báo phân biệt lỗi kết nối, timeout, quyền truy cập, mô hình và hạn mức. Log máy chủ ghi model, thời gian đã chờ, loại kết quả và mã HTTP từ Gemini; không ghi API key hay nội dung người dùng. Log thành công dùng mức INFO, log thất bại dùng WARNING. Không cần đưa API key vào trình duyệt.
 
 ## Liên kết nhà tài trợ và sao chép
+
+Tagline là câu mô tả giá trị cốt lõi do Gemini tạo từ tên thương hiệu, tối đa 15 từ. Kết quả chỉ nằm trong trang hiện tại, không lưu vào cơ sở dữ liệu. Nút **Gợi ý lại** gửi thêm `previous_tagline` đến `POST /api/slogans` để yêu cầu một câu khác. Nếu AI vẫn trả câu cũ (kể cả chỉ đổi hoa/thường hoặc dấu câu), API trả HTTP 409; giao diện giữ kết quả trước và báo rõ chưa thay đổi. Khi sửa tên trong ô nhập, cần bấm **Phân tích** trước khi gợi ý lại cho tên mới. Nội dung hiển thị lấy từ `state.tagline` khi tải trang, rồi từ phản hồi API sau khi gợi ý lại; sửa riêng chữ trong template không thay đổi dữ liệu AI hay nội dung sao chép.
 
 Khi đã phân tích được tên và tạo danh sách tên miền demo, nút **Copy tất cả** sao chép tên thương hiệu, slug, đánh giá AI nếu có, 5 tên miền kèm nhãn kết quả demo, 3 slogan và tagline nếu có. Nút dùng Clipboard API, rồi thử cách sao chép dự phòng trên trình duyệt cũ. Sau khi bấm **Gợi ý lại**, nội dung sao chép lấy slogan mới nhất.
 

@@ -1,12 +1,15 @@
 """Gọi AI ở phía máy chủ để đánh giá tên thương hiệu."""
 
 import json
+import logging
 import os
+from time import monotonic
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/interactions"
+logger = logging.getLogger(__name__)
 
 
 SYSTEM_PROMPT = """Bạn là chuyên gia đặt tên thương hiệu cho thị trường Việt Nam.
@@ -40,6 +43,7 @@ EVALUATION_SCHEMA = {
 }
 
 SAFE_PROVIDER_CODES = {"quota_exceeded", "rate_limit_exceeded", "too_many_requests", "payment_required"}
+SAFE_PROVIDER_CODES.update({"resource_exhausted", "permission_denied", "unauthenticated", "invalid_argument", "not_found", "unavailable", "deadline_exceeded"})
 
 
 class EvaluationError(Exception):
@@ -99,7 +103,14 @@ def call_gemini(brand: str, prompt: str, schema: dict) -> object:
     """Gọi Gemini với JSON Schema; khóa chỉ nằm ở phía máy chủ."""
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        raise EvaluationError("Đánh giá AI hiện chưa sẵn sàng. Vui lòng thử lại sau", 503)
+        raise EvaluationError("AI chưa được cấu hình khóa truy cập trên máy chủ", 503)
+
+    try:
+        timeout = int(os.environ.get("GEMINI_TIMEOUT_SECONDS", "30"))
+        if not 1 <= timeout <= 120:
+            raise ValueError
+    except ValueError as exc:
+        raise EvaluationError("Cấu hình thời gian chờ AI trên máy chủ không hợp lệ", 503) from exc
 
     payload = {
         "model": os.environ.get("GEMINI_MODEL") or "gemini-3.5-flash-lite",
@@ -118,38 +129,61 @@ def call_gemini(brand: str, prompt: str, schema: dict) -> object:
         headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
         method="POST",
     )
+    started = monotonic()
+    outcome = "error"
+    provider_status = None
+    timeout_message = f"Chưa nhận được phản hồi đầy đủ từ Gemini trong thời gian chờ {timeout} giây. Vui lòng thử lại"
     try:
-        with urlopen(request, timeout=15) as upstream:
+        with urlopen(request, timeout=timeout) as upstream:
             response = json.load(upstream)
+        result = _model_result(response)
+        outcome = "success"
+        return result
     except HTTPError as exc:
+        outcome = "http_error"
+        provider_status = exc.code
         # Chỉ chuyển mã trạng thái và mã lỗi trong danh sách an toàn ra trình duyệt.
         provider_code = None
         try:
             error = json.load(exc).get("error", {})
-            code = error.get("code")
+            code = error.get("status") or error.get("code")
             if isinstance(code, str) and code.lower() in SAFE_PROVIDER_CODES:
                 provider_code = code.lower()
         except (ValueError, AttributeError, OSError):
             pass
         finally:
             exc.close()
+        message = {
+            400: "Gemini từ chối yêu cầu. Cần kiểm tra cấu hình API và tham số trên máy chủ",
+            401: "Gemini không chấp nhận khóa truy cập. Cần kiểm tra API key trên máy chủ",
+            403: "Gemini từ chối quyền truy cập. Cần kiểm tra API key và quyền sử dụng mô hình",
+            404: "Gemini không tìm thấy mô hình hoặc API đã cấu hình trên máy chủ",
+            429: "Gemini báo hết hạn mức hoặc quá nhiều yêu cầu. Vui lòng thử lại sau",
+            503: "Gemini đang tạm thời không sẵn sàng. Vui lòng thử lại sau",
+            504: "Gemini báo hết thời gian xử lý yêu cầu. Vui lòng thử lại",
+        }.get(exc.code, "Gemini chưa thể xử lý yêu cầu lúc này. Vui lòng thử lại sau")
         raise EvaluationError(
-            "Chưa thể đánh giá tên lúc này. Vui lòng thử lại sau",
-            502,
+            message,
+            504 if exc.code == 504 else 502,
             provider_status=exc.code,
             provider_code=provider_code,
         ) from exc
     except TimeoutError as exc:
-        raise EvaluationError("Đánh giá AI quá thời gian chờ 15 giây", 504) from exc
+        outcome = "timeout"
+        raise EvaluationError(timeout_message, 504) from exc
     except URLError as exc:
-        raise EvaluationError("Chưa thể đánh giá tên lúc này. Vui lòng thử lại sau", 502) from exc
-    except (ValueError, TypeError) as exc:
-        raise EvaluationError("AI chưa trả về kết quả hợp lệ. Vui lòng thử lại", 502) from exc
-
-    try:
-        return _model_result(response)
+        if isinstance(exc.reason, TimeoutError):
+            outcome = "timeout"
+            raise EvaluationError(timeout_message, 504) from exc
+        outcome = "connection_error"
+        raise EvaluationError("Máy chủ ứng dụng chưa kết nối được tới Gemini. Vui lòng thử lại sau", 502) from exc
     except (ValueError, TypeError, KeyError) as exc:
+        outcome = "invalid_response"
         raise EvaluationError("AI chưa trả về kết quả hợp lệ. Vui lòng thử lại", 502) from exc
+    finally:
+        log = logger.info if outcome == "success" else logger.warning
+        log("Gemini request outcome=%s model=%s elapsed_seconds=%.2f timeout_seconds=%s provider_status=%s",
+            outcome, payload["model"], monotonic() - started, timeout, provider_status)
 
 
 def evaluate_brand(brand: str) -> dict:
