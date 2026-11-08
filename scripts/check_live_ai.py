@@ -24,7 +24,7 @@ def main():
         if value:
             os.environ["GEMINI_API_KEY"] = value
     report = {"checked_at_utc": datetime.now(timezone.utc).isoformat(), "status": "not_run",
-              "model": os.environ.get("GEMINI_MODEL") or "gemini-3.6-flash", "brand": "Mây Studio", "requests": []}
+              "model": os.environ.get("GEMINI_MODEL") or "gemini-3.5-flash-lite", "brand": "Mây Studio", "requests": []}
     if not os.environ.get("GEMINI_API_KEY"):
         report["reason"] = "Chưa có GEMINI_API_KEY trong môi trường; không gửi request tới Gemini."
     else:

@@ -113,7 +113,7 @@ def call_gemini(brand: str, prompt: str, schema: dict) -> object:
         raise EvaluationError("Cấu hình thời gian chờ AI trên máy chủ không hợp lệ", 503) from exc
 
     payload = {
-        "model": os.environ.get("GEMINI_MODEL") or "gemini-3.6-flash",
+        "model": os.environ.get("GEMINI_MODEL") or "gemini-3.5-flash-lite",
         "system_instruction": prompt,
         "input": brand,
         "response_format": {

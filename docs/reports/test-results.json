@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-11-04T09:32:26.953161+00:00",
+  "checked_at_utc": "2026-11-08T15:32:04.754695+00:00",
   "scope": "Flask test client and Node VM tests; no real Gemini requests or browser interaction",
   "python": {
     "status": "passed",
@@ -111,8 +111,8 @@
   },
   "frontend": {
     "status": "passed",
-    "total": 6,
-    "passed": 6,
+    "total": 7,
+    "passed": 7,
     "failed": 0
   }
 }

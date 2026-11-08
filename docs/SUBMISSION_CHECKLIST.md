@@ -1,6 +1,6 @@
 # Checklist bài nộp — Nhóm KMPT, bảng A, đề 10
 
-Đối chiếu ngày 04/11/2026 với [tiêu chí BTC](https://vibecoding.info.vn/tieu-chi-cham-thi), [đề 10](https://vibecoding.info.vn/de-bai#de-10) và 3 ảnh yêu cầu trong thư mục `Yêu Cầu Bài Nộp/`.
+Đối chiếu ngày 08/11/2026 với [tiêu chí BTC](https://vibecoding.info.vn/tieu-chi-cham-thi) và [đề 10](https://vibecoding.info.vn/de-bai#de-10). Gói source không kèm ảnh chụp yêu cầu gốc.
 
 Đây là hồ sơ đang hoàn thiện. Chưa gửi bài lên cổng BTC.
 
@@ -11,11 +11,11 @@
 - [x] Form/API kiểm tra tên thống nhất 2–30 ký tự.
 - [x] Nút đăng ký có trang demo và nhãn rõ; cấu hình được URL HTTPS chính thức qua `SPONSOR_DOMAIN_URL`.
 - [x] Có mã chạy lại 6 ca bắt buộc: 2 bình thường, 2 đầu vào sai, 2 ca biên.
-- [x] Bộ kiểm thử tự động: 25 Python và 6 JavaScript đạt; xem [báo cáo](reports/TEST_RESULTS.md).
-- [x] Chrome local: 8 ca đạt, gồm mobile, lỗi thiếu key và clipboard; xem [phạm vi kiểm tra](reports/BROWSER_RESULTS.md).
+- [x] Bộ kiểm thử tự động: 25 Python và 7 JavaScript đạt; xem [báo cáo](reports/TEST_RESULTS.md).
+- [x] Chrome local: 19 ca đạt, gồm chuyển cảnh, mobile, lỗi mạng, lỗi thiếu key và clipboard; xem [phạm vi kiểm tra](reports/BROWSER_RESULTS.md).
 - [x] Minh chứng sử dụng AI từ phiên hoàn thiện thực tế: [bản một trang](AI_EVIDENCE.html), PDF được công cụ kiểm tra trình duyệt tạo và xác nhận một trang.
-- [x] Có [kịch bản video 2 phút](DEMO_SCRIPT.md) và [tài liệu hỏi đáp kỹ thuật](TECHNICAL_QA.md).
-- [x] Có công cụ đóng ZIP theo danh sách cho phép, kiểm tra mẫu key phổ biến, CRC và SHA-256; chạy sau khi hoàn tất hồ sơ.
+- [x] Gói có [bảng chỉ dẫn từng phần](../PACKAGE_CONTENTS.md), cấu hình mẫu, source và test có thể chạy sau khi giải nén.
+- [x] Có công cụ đóng ZIP theo danh sách cho phép và kiểm tra lại gói giải nén, gồm mẫu key phổ biến, liên kết tài liệu, CRC và SHA-256.
 
 ## Cần hoàn thành trước khi bấm nộp
 

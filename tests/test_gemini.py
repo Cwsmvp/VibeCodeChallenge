@@ -15,12 +15,14 @@ class GeminiTests(unittest.TestCase):
     def test_success_uses_default_timeout_and_reads_interactions_response(self, open_url):
         with patch.dict(os.environ):
             os.environ.pop("GEMINI_TIMEOUT_SECONDS", None)
+            os.environ.pop("GEMINI_MODEL", None)
             body = {"status": "completed", "steps": [{
                 "type": "model_output", "content": [{"type": "text", "text": '{"ok": true}'}],
             }]}
             open_url.return_value.__enter__.return_value = io.BytesIO(json.dumps(body).encode())
             self.assertEqual(call_gemini("Mây", "prompt", {}), {"ok": True})
             self.assertEqual(open_url.call_args.kwargs["timeout"], 30)
+            self.assertEqual(json.loads(open_url.call_args.args[0].data)["model"], "gemini-3.5-flash-lite")
 
     @patch("evaluation.urlopen", side_effect=TimeoutError())
     def test_custom_timeout_is_reported_without_retry_or_secret_in_logs(self, open_url):

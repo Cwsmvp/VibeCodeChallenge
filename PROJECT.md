@@ -8,7 +8,7 @@ Nhóm KMPT · Bảng A · Đề 10. Hướng dẫn cài đặt và trạng thái
 2. `POST /` nhận tên, trim và chuẩn hóa Unicode NFC, kiểm tra 2–30 ký tự và khả năng tạo slug bằng hàm `validated_brand` trong `app.py`.
 3. `slug.py` chuyển đ/Đ, bỏ dấu, ký tự đặc biệt; giữ a–z, 0–9, gạch ngang và bỏ gạch ngang ở hai đầu.
 4. `domains.py` ghép slug với 5 đuôi cố định, mô phỏng trạng thái theo quy tắc ổn định. Đây là phần mock có công bố, không phải gợi ý tên miền từ AI hoặc tra cứu WHOIS/RDAP.
-5. HTML có kết quả tên miền và `window.appState`. JavaScript gọi đồng thời `/api/evaluate` và `/api/slogans`.
+5. HTML có kết quả tên miền và state JSON. Khi bật JavaScript, `interface.js` gửi form bằng fetch, thay vùng nội dung và chuyển bố cục ngay trong trang; form POST thông thường vẫn dùng được khi tắt JavaScript. JavaScript gọi đồng thời `/api/evaluate` và `/api/slogans` sau mỗi tên hợp lệ.
 6. Hai API dùng cùng quy tắc kiểm tra tên với form, từ chối JSON sai kiểu trước khi gọi Gemini. Backend gọi Interactions API rồi kiểm tra nội dung đầu ra.
 7. JavaScript cập nhật độc lập từng vùng và state. Copy đọc state mới nhất. Khi gợi ý lại slogan lỗi, kết quả cũ được giữ.
 
@@ -24,6 +24,7 @@ Nhóm KMPT · Bảng A · Đề 10. Hướng dẫn cài đặt và trạng thái
 | `public/ai.js` | Request, loading và timeout trình duyệt |
 | `public/evaluation.js`, `public/slogans.js` | Hiển thị AI, nút thử lại, trạng thái đang tải |
 | `public/actions.js` | Nội dung sao chép, Clipboard API và phương án dự phòng |
+| `public/interface.js` | Gửi form không tải lại trang, điều hướng 3 bước, View Transition/FLIP, tổng hợp kết quả và lịch sử tên bằng localStorage |
 | `scripts/` | Chạy local, kiểm thử, kiểm chứng AI thật, kiểm tra trình duyệt và đóng ZIP |
 
 ## Hợp đồng API
@@ -46,7 +47,7 @@ Lỗi đầu vào trả 400, thiếu key hoặc cấu hình timeout sai trả 50
 
 ## Cấu hình và bảo mật
 
-Key chỉ đọc từ `GEMINI_API_KEY`. Các biến tùy chọn: `GEMINI_MODEL`, `GEMINI_TIMEOUT_SECONDS`, `SPONSOR_DOMAIN_URL`; xem `.env.example`. File `.env` không tự được nạp.
+Key chỉ đọc từ `GEMINI_API_KEY`. Model mặc định là `gemini-3.5-flash-lite`; có thể đổi qua `GEMINI_MODEL`. Các biến tùy chọn khác: `GEMINI_TIMEOUT_SECONDS`, `SPONSOR_DOMAIN_URL`; xem `.env.example`. File `.env` không tự được nạp.
 
 `SPONSOR_DOMAIN_URL` được đọc khi Flask khởi động. Chỉ dùng URL HTTPS có hostname và không kèm user/password; giá trị thiếu/sai chuyển về `/dang-ky-demo`. Jinja dựng link có `target="_blank"`, `rel="noopener noreferrer"`; không cần sửa frontend khi đổi URL chính thức. Trước khi có tên hợp lệ, nút bị vô hiệu hóa.
 
@@ -62,6 +63,6 @@ Một phần AI lỗi không chặn phần kia hoặc danh sách tên miền. Kh
 
 ## Kiểm chứng và bàn giao
 
-[25 test Python và 6 JavaScript](docs/reports/TEST_RESULTS.md) kiểm tra logic và lỗi với mock, không gọi AI thật. [8 ca Chrome](docs/reports/BROWSER_RESULTS.md) kiểm tra trình duyệt local, trong đó các phản hồi AI thành công được chặn và thay bằng fixture chỉ trong công cụ kiểm tra. Ảnh fixture có banner minh bạch.
+[25 test Python và 7 JavaScript](docs/reports/TEST_RESULTS.md) kiểm tra logic và lỗi với mock, không gọi AI thật. [19 ca Chrome](docs/reports/BROWSER_RESULTS.md) kiểm tra trình duyệt local, trong đó các phản hồi AI thành công được chặn và thay bằng fixture chỉ trong công cụ kiểm tra. Bao gồm chuyển cảnh thật, hiệu ứng dự phòng, đổi tên khi lỗi mạng, clipboard và bố cục 320–1440px. Ảnh fixture có banner minh bạch.
 
-[Kiểm chứng Gemini thật](docs/reports/LIVE_AI.md) hiện chưa thực hiện vì không có key trong phiên. [Checklist](docs/SUBMISSION_CHECKLIST.md) ghi các việc còn lại; [minh chứng sử dụng AI](docs/AI_EVIDENCE.pdf) chỉ ghi lại phiên hoàn thiện thực tế.
+[Kiểm chứng Gemini thật](docs/reports/LIVE_AI.md) hiện ghi `failed` ở lần chạy model cũ: đánh giá tên thành công nhưng slogan gặp lỗi provider 503. Cần kiểm chứng lại model mặc định mới; không sửa kết quả lần chạy cũ thành kết quả của model mới. [Checklist](docs/SUBMISSION_CHECKLIST.md) ghi các việc còn lại; [minh chứng sử dụng AI](docs/AI_EVIDENCE.pdf) chỉ ghi lại phiên hoàn thiện thực tế.

@@ -12,7 +12,7 @@
 | Demo online | **Cần bổ sung URL bản triển khai đã kiểm tra** |
 | Video demo ≤ 2 phút | **Cần bổ sung URL video thao tác thực tế** |
 | Repository | [Cwsmvp/VibeCodeChallenge](https://github.com/Cwsmvp/VibeCodeChallenge) |
-| Source ZIP | Chạy công cụ đóng gói để tạo `dist/KMPT-De10-source.zip`; cần bổ sung URL tải sau khi đăng gói cuối |
+| Source ZIP | `dist/KMPT-De10-source.zip`; xem [các phần trong gói](PACKAGE_CONTENTS.md). Cần bổ sung URL tải sau khi đăng gói cuối |
 | Minh chứng dùng AI | [PDF một trang](docs/AI_EVIDENCE.pdf), [bản HTML](docs/AI_EVIDENCE.html) |
 | Kiểm thử | [Báo cáo tự động](docs/reports/TEST_RESULTS.md), [trình duyệt](docs/reports/BROWSER_RESULTS.md) |
 | Việc còn lại | [Checklist bàn giao](docs/SUBMISSION_CHECKLIST.md) |
@@ -43,20 +43,20 @@ Môi trường đã kiểm tra: Windows/PowerShell, Python 3.14.7, Flask 3.1.3, 
 
 ## 4. AI và cấu hình bảo mật
 
-Mã sản phẩm gọi Gemini thật cho đánh giá tên và slogan/tagline. Endpoint: `https://generativelanguage.googleapis.com/v1beta/interactions`; model mặc định `gemini-3.6-flash`, đổi được bằng `GEMINI_MODEL`.
+Mã sản phẩm gọi Gemini thật cho đánh giá tên và slogan/tagline. Endpoint: `https://generativelanguage.googleapis.com/v1beta/interactions`; model mặc định `gemini-3.5-flash-lite`, đổi được bằng `GEMINI_MODEL`.
 
 Backend yêu cầu JSON Schema rồi kiểm tra lại cấu trúc, điểm số, độ dài và số lượng đầu ra. Thiếu key hoặc API lỗi sẽ trả thông báo lỗi; không tự thay AI bằng kết quả giả. Log không ghi key hoặc tên thương hiệu. Payload có `store: false`.
 
 | Biến môi trường | Giá trị / ý nghĩa |
 |---|---|
 | `GEMINI_API_KEY` | Bắt buộc để dùng AI; chỉ đặt trên máy chủ hoặc terminal chạy local |
-| `GEMINI_MODEL` | Không bắt buộc; mặc định `gemini-3.6-flash` |
+| `GEMINI_MODEL` | Không bắt buộc; mặc định `gemini-3.5-flash-lite` |
 | `GEMINI_TIMEOUT_SECONDS` | Số nguyên 1–120; mặc định 30 giây cho thao tác mạng |
 | `SPONSOR_DOMAIN_URL` | URL HTTPS chính thức do BTC cung cấp; trống hoặc không hợp lệ thì dùng `/dang-ky-demo` |
 
 [`.env.example`](.env.example) chỉ là tài liệu cấu hình, không có khóa thật. Ứng dụng **không tự nạp file `.env`**. Không đưa key vào source, ZIP, frontend, video hoặc ảnh minh chứng. Máy khác chạy local cần tự cấu hình key; cách cấp quyền truy cập AI khi chấm theo thông báo BTC.
 
-**Trạng thái kiểm chứng:** [báo cáo AI thật](docs/reports/LIVE_AI.md) hiện ghi `not_run` vì phiên hoàn thiện chưa có key. Test tự động và ảnh fixture không chứng minh Gemini thật đã hoạt động.
+**Trạng thái kiểm chứng:** [báo cáo AI thật](docs/reports/LIVE_AI.md) hiện ghi `failed` ở lần chạy model cũ: phần đánh giá tên thành công, phần slogan gặp lỗi provider 503. Báo cáo này được giữ theo lần chạy thực tế; cần chạy lại để kiểm chứng model mặc định mới `gemini-3.5-flash-lite`. Test tự động và ảnh fixture không chứng minh Gemini thật đã hoạt động.
 
 ## 5. Cài đặt và chạy local
 
@@ -85,7 +85,7 @@ Mở `http://127.0.0.1:5000/`. Nhập **Mây Studio**, bấm **Phân tích**, th
 Có thể đặt tùy chọn trước khi chạy:
 
 ```powershell
-$env:GEMINI_MODEL = "gemini-3.6-flash"
+$env:GEMINI_MODEL = "gemini-3.5-flash-lite"
 $env:GEMINI_TIMEOUT_SECONDS = "30"
 # Khi có URL HTTPS chính thức từ BTC:
 # $env:SPONSOR_DOMAIN_URL = "https://..."
@@ -147,6 +147,50 @@ Remove-Item Env:\GEMINI_API_KEY -ErrorAction SilentlyContinue
 
 Không nhập key vào ô tên thương hiệu hoặc sửa HTML/JavaScript để chứa key. Chỉ tạo/copy file `.env` sẽ chưa cấu hình được AI vì ứng dụng không tự đọc file này. Khi đổi key qua biến môi trường, cần dừng và khởi động lại server để tiến trình nhận giá trị mới.
 
+### Chọn model Gemini khác khi chạy local
+
+API key và model được cấu hình riêng. `gemini-3.5-flash-lite` chỉ là model mặc định khi chưa đặt `GEMINI_MODEL` hoặc biến này rỗng. Ứng dụng không tự chọn model dựa trên API key; người chạy có thể dùng model khác bằng biến môi trường, không cần sửa source.
+
+Thay `MODEL_ID_MUON_DUNG` trong ví dụ bằng ID model thực tế bạn muốn sử dụng. Đặt biến và chạy ứng dụng trong **cùng terminal**:
+
+```powershell
+# Windows / PowerShell
+$env:GEMINI_MODEL = "MODEL_ID_MUON_DUNG"
+.\.venv\Scripts\python.exe scripts/run_local.py
+```
+
+```bash
+# macOS / Linux
+export GEMINI_MODEL="MODEL_ID_MUON_DUNG"
+.venv/bin/python scripts/run_local.py
+```
+
+Sau đó nhập API key vào lời nhắc ẩn như hướng dẫn trên; nếu đã đặt `GEMINI_API_KEY`, công cụ dùng key đó. Model được chọn cần được key cấp quyền truy cập, hỗ trợ Gemini Interactions API và đầu ra JSON theo schema mà ứng dụng gửi. Không phải mọi model hoặc API key của nhà cung cấp khác đều thay trực tiếp được. Source hiện chưa có cơ chế tự chuyển sang model khác khi gặp lỗi.
+
+Để kiểm chứng model vừa chọn, dừng server bằng `Ctrl+C` rồi chạy trong terminal đã đặt biến:
+
+```powershell
+# Windows / PowerShell
+.\.venv\Scripts\python.exe scripts/check_live_ai.py --prompt-key
+```
+
+```bash
+# macOS / Linux
+.venv/bin/python scripts/check_live_ai.py --prompt-key
+```
+
+Công cụ gửi tối đa 3 request thật và ghi model cùng kết quả vào [báo cáo AI](docs/reports/LIVE_AI.md). Khi đổi model/key qua biến môi trường, dừng rồi khởi động lại ứng dụng trong terminal đã đặt giá trị mới. Muốn trở về model mặc định, xóa biến trước khi chạy lại:
+
+```powershell
+# Windows / PowerShell
+Remove-Item Env:\GEMINI_MODEL -ErrorAction SilentlyContinue
+```
+
+```bash
+# macOS / Linux
+unset GEMINI_MODEL
+```
+
 ## 6. Cấu trúc source
 
 ```text
@@ -158,7 +202,7 @@ templates/, public/      # HTML/CSS/JavaScript
 scripts/                 # Chạy local, kiểm tra, đóng gói
 tests/                   # Python và JavaScript
 docs/                    # Hồ sơ, báo cáo, ảnh và minh chứng một trang
-Yêu Cầu Bài Nộp/          # Ba ảnh yêu cầu do đội cung cấp
+PACKAGE_CONTENTS.md      # Chỉ dẫn từng phần trong ZIP
 .env.example             # Mẫu cấu hình trống, không tự được nạp
 requirements.txt
 vercel.json
@@ -168,7 +212,7 @@ README.md
 
 ## 7. Truy cập và triển khai
 
-Ứng dụng không yêu cầu tài khoản; dữ liệu thử: **Mây Studio**, **Cà phê Đậm**. Không có màn hình quản trị hoặc dữ liệu cần khởi tạo. Hai tác vụ AI tải độc lập; kết quả chỉ tồn tại trong trang hiện tại.
+Ứng dụng không yêu cầu tài khoản; dữ liệu thử: **Mây Studio**, **Cà phê Đậm**. Không có màn hình quản trị hoặc dữ liệu cần khởi tạo. Hai tác vụ AI tải độc lập; kết quả chỉ tồn tại trong trang hiện tại. Danh sách tối đa 20 tên đã nhập được lưu bằng localStorage trên trình duyệt và có thể xóa trong hộp Danh sách.
 
 Trên Vercel: chọn thư mục chứa `app.py` làm root, framework Flask, bỏ các lệnh build/output cũ nếu có. Thêm `GEMINI_API_KEY` và các biến tùy chọn vào môi trường server rồi triển khai lại. `SPONSOR_DOMAIN_URL` được đọc khi khởi động; đổi biến cần khởi động/triển khai lại. Không dùng biến công khai cho key.
 
@@ -178,21 +222,22 @@ Sau triển khai, mở link bằng cửa sổ chưa đăng nhập, thử AI th�
 
 - Gợi ý và trạng thái tên miền là mô phỏng; chưa có tra cứu khả dụng thực tế hoặc xác minh quyền sở hữu nhãn hiệu.
 - Liên kết đăng ký dùng trang demo cho đến khi có URL chính thức từ BTC.
-- Chưa kiểm chứng Gemini thật/bản online trong phiên hoàn thiện; cần tài khoản AI và hosting có quyền truy cập.
-- Không lưu lịch sử khi tải lại trang; chưa có rate limit hoặc xác thực ở tầng ứng dụng.
+- Chưa hoàn tất kiểm chứng Gemini thật với model mặc định hiện tại và bản online; cần tài khoản AI và hosting có quyền truy cập.
+- Lịch sử chỉ lưu tên trên trình duyệt, không lưu kết quả AI hoặc đồng bộ giữa thiết bị; chưa có rate limit hoặc xác thực ở tầng ứng dụng.
 - Trình duyệt ngừng chờ AI sau 130 giây; backend không tự retry. Timeout thao tác mạng không phải cam kết tổng thời gian xử lý.
-- Kiểm tra mobile bằng Chrome headless 390px; chưa kiểm tra trên thiết bị vật lý hoặc mọi trình duyệt.
+- Đã kiểm tra bố cục bằng Chrome headless ở 320, 390, 768, 1024 và 1440px; chưa kiểm tra trên thiết bị vật lý hoặc mọi trình duyệt.
 
 ## 9. Nguồn tham khảo
 
 - [Đề 10 và giải thích chính thức](https://vibecoding.info.vn/de-bai#de-10).
-- [Tiêu chí và yêu cầu bài nộp](https://vibecoding.info.vn/tieu-chi-cham-thi).
+- [Tiêu chí chấm thi](https://vibecoding.info.vn/tieu-chi-cham-thi).
 - [Cổng nộp bài](https://vibecoding.info.vn/nop-bai).
 - [Gemini Interactions API](https://aistudio.google.com/docs/interactions-overview), [Google AI Studio](https://aistudio.google.com/apikey).
 - [Flask](https://flask.palletsprojects.com/), [Jinja](https://jinja.palletsprojects.com/).
-- [Tài liệu kỹ thuật dự án](PROJECT.md); 3 ảnh gốc trong thư mục `Yêu Cầu Bài Nộp/`.
+- [Tài liệu kỹ thuật dự án](PROJECT.md).
+- [Google Fonts — Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans).
 
-Giao diện dùng font hệ thống Segoe UI/Arial và Georgia/Times New Roman. Công cụ AI hỗ trợ rà soát và hoàn thiện hồ sơ là Codex; xem minh chứng bên dưới.
+Giao diện VibeFlow được tùy biến từ mẫu do thành viên đội cung cấp, dùng Plus Jakarta Sans từ Google Fonts và font dự phòng Segoe UI/Arial. Mẫu thử độc lập không nằm trong source ZIP; giao diện sản phẩm nằm trong `templates/` và `public/`. Hiệu ứng ưu tiên View Transition, dùng FLIP khi cần và luôn chạy khi trình duyệt hỗ trợ. Công cụ AI hỗ trợ rà soát và hoàn thiện hồ sơ là Codex; xem minh chứng bên dưới.
 
 ## 10. Minh chứng dùng AI xây dựng/cải thiện sản phẩm
 
@@ -202,7 +247,7 @@ Minh chứng chỉ đại diện phiên hoàn thiện ngày 04/11/2026. Không t
 
 ## 11. Kiểm thử và kết quả thực tế
 
-Ngày kiểm tra: **04/11/2026**. Đã đạt **25 test Python, 6 test JavaScript, 8 ca Chrome local**. Chi tiết và thời điểm chạy chính xác trong [báo cáo tự động](docs/reports/TEST_RESULTS.md), [báo cáo trình duyệt](docs/reports/BROWSER_RESULTS.md).
+Lần kiểm tra cập nhật ngày **08/11/2026** đã đạt **25 test Python, 7 test JavaScript, 19 ca Chrome local**. Chi tiết và thời điểm chạy chính xác trong [báo cáo tự động](docs/reports/TEST_RESULTS.md), [báo cáo trình duyệt](docs/reports/BROWSER_RESULTS.md).
 
 | Ca bắt buộc | Loại | Đầu vào / thao tác | Kỳ vọng và kết quả đã kiểm tra |
 |---|---|---|---|
@@ -236,12 +281,20 @@ Kết quả được ghi trong [LIVE_AI.md](docs/reports/LIVE_AI.md); chưa ch�
 
 ## 12. Đóng gói và bàn giao
 
-Đọc [checklist](docs/SUBMISSION_CHECKLIST.md), [kịch bản video](docs/DEMO_SCRIPT.md) và [chuẩn bị hỏi đáp](docs/TECHNICAL_QA.md).
+Đọc [các phần trong gói source](PACKAGE_CONTENTS.md) và [checklist](docs/SUBMISSION_CHECKLIST.md).
 
 ```powershell
 .\.venv\Scripts\python.exe scripts/build_source.py
 ```
 
-Tạo `dist/KMPT-De10-source.zip`, checksum `.sha256` và `MANIFEST.json`. ZIP có thư mục gốc `KMPT-De10/`, source, README, cấu hình mẫu, test và hồ sơ. Công cụ kiểm tra các mẫu khóa phổ biến, giá trị secret có trong môi trường, CRC và hash từng tệp; không thay thế việc tự rà soát tài liệu riêng trước khi nộp.
+Tạo `dist/KMPT-De10-source.zip`, checksum `.sha256` và `dist/MANIFEST.json`. Chỉ cần dùng một ZIP để bàn giao source; ZIP có thư mục gốc `KMPT-De10/`, bảng chỉ dẫn `PACKAGE_CONTENTS.md` và manifest kiểm tra từng tệp ngay trong gói. Các phần gồm tài liệu, mã chạy ứng dụng, giao diện, cấu hình mẫu, công cụ, test và hồ sơ minh chứng. Giữ các đường dẫn gốc để chạy trực tiếp sau khi giải nén.
 
-Không đóng gói `.git/`, `.venv/`, `.env`, file cache, hồ sơ trình duyệt hoặc output `dist/`. Không cần đóng gói tài khoản demo. Sau khi có link online, kiểm chứng AI thật và video, cập nhật README rồi đóng lại ZIP cuối. Tải gói lên nơi BTC yêu cầu và điền URL tải. Không sửa tính năng sau hạn nộp.
+Công cụ dùng danh sách tệp được chọn, kiểm tra mẫu khóa phổ biến, giá trị secret có trong môi trường, liên kết tài liệu, CRC và SHA-256 từng tệp. Không đóng gói thư mục ảnh yêu cầu gốc, `test.html`, `WORKED.md`, tài liệu chuẩn bị video/hỏi đáp nội bộ, thư mục `static/` không dùng, `.git/`, `.venv/`, `.env`, cache, hồ sơ trình duyệt hoặc output `dist/`. Chỉ giữ `.env.example` không có khóa thật.
+
+Kiểm tra lại một gói ZIP bằng cách giải nén vào thư mục tạm, đối chiếu manifest, chạy test và thử Flask ngay từ source đã giải nén:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/verify_source.py
+```
+
+Sau khi có link online, kiểm chứng AI thật và video, cập nhật README rồi đóng lại ZIP cuối. Tải gói lên nơi BTC yêu cầu và điền URL tải. Gói source này chưa thay thế video/link online và chưa được gửi lên cổng BTC. Không sửa tính năng sau hạn nộp.

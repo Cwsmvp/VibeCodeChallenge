@@ -2,45 +2,51 @@ TAP version 13
 # Subtest: both requests start immediately; evaluation renders while slogans still load
 ok 1 - both requests start immediately; evaluation renders while slogans still load
   ---
-  duration_ms: 5.0254
+  duration_ms: 10.6746
   type: 'test'
   ...
 # Subtest: slogans render independently of failed evaluation; retry only repeats evaluation
 ok 2 - slogans render independently of failed evaluation; retry only repeats evaluation
   ---
-  duration_ms: 1.743
+  duration_ms: 3.4632
   type: 'test'
   ...
 # Subtest: slogan retry preserves old results on failure and prevents duplicate requests
 ok 3 - slogan retry preserves old results on failure and prevents duplicate requests
   ---
-  duration_ms: 2.0395
+  duration_ms: 4.5019
   type: 'test'
   ...
 # Subtest: copy reflects loading then completed results
 ok 4 - copy reflects loading then completed results
   ---
-  duration_ms: 1.791
+  duration_ms: 2.884
+  type: 'test'
+  ...
+# Subtest: a late slogan response cannot overwrite the state of a newer brand
+ok 5 - a late slogan response cannot overwrite the state of a newer brand
+  ---
+  duration_ms: 2.7821
   type: 'test'
   ...
 # Subtest: network and non-JSON hosting failures end both loading states
-ok 5 - network and non-JSON hosting failures end both loading states
+ok 6 - network and non-JSON hosting failures end both loading states
   ---
-  duration_ms: 1.2068
+  duration_ms: 2.3988
   type: 'test'
   ...
 # Subtest: client timeout clears loading; empty page makes no AI requests
-ok 6 - client timeout clears loading; empty page makes no AI requests
+ok 7 - client timeout clears loading; empty page makes no AI requests
   ---
-  duration_ms: 1.7958
+  duration_ms: 3.7084
   type: 'test'
   ...
-1..6
-# tests 6
+1..7
+# tests 7
 # suites 0
-# pass 6
+# pass 7
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 66.8412
+# duration_ms 152.8287

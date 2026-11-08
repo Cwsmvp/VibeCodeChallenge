@@ -25,6 +25,6 @@ test_tc06_over_maximum_length (test_submission.SubmissionTests.test_tc06_over_ma
 test_untrusted_brand_is_escaped_and_key_is_never_served (test_submission.SubmissionTests.test_untrusted_brand_is_escaped_and_key_is_never_served) ... ok
 
 ----------------------------------------------------------------------
-Ran 25 tests in 0.106s
+Ran 25 tests in 0.164s
 
 OK
