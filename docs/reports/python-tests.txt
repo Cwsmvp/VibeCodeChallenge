@@ -1,0 +1,30 @@
+test_bad_timeout_config_does_not_make_request (test_gemini.GeminiTests.test_bad_timeout_config_does_not_make_request) ... ok
+test_custom_timeout_is_reported_without_retry_or_secret_in_logs (test_gemini.GeminiTests.test_custom_timeout_is_reported_without_retry_or_secret_in_logs) ... ok
+test_provider_failures_expose_safe_status_and_specific_message (test_gemini.GeminiTests.test_provider_failures_expose_safe_status_and_specific_message) ... ok
+test_slogans_endpoint_returns_timeout_json (test_gemini.GeminiTests.test_slogans_endpoint_returns_timeout_json) ... ok
+test_success_uses_default_timeout_and_reads_interactions_response (test_gemini.GeminiTests.test_success_uses_default_timeout_and_reads_interactions_response) ... ok
+test_wrapped_timeout_and_connection_failure_are_distinct (test_gemini.GeminiTests.test_wrapped_timeout_and_connection_failure_are_distinct) ... ok
+test_initial_page_returns_domains_and_loading_without_calling_ai (test_slogans.SloganTests.test_initial_page_returns_domains_and_loading_without_calling_ai) ... ok
+test_invalid_brand_does_not_start_loading_or_ai (test_slogans.SloganTests.test_invalid_brand_does_not_start_loading_or_ai) ... ok
+test_invalid_previous_tagline_does_not_call_ai (test_slogans.SloganTests.test_invalid_previous_tagline_does_not_call_ai) ... ok
+test_repeated_tagline_is_reported_even_with_cosmetic_changes (test_slogans.SloganTests.test_repeated_tagline_is_reported_even_with_cosmetic_changes) ... ok
+test_retry_api_forwards_previous_tagline (test_slogans.SloganTests.test_retry_api_forwards_previous_tagline) ... ok
+test_retry_api_returns_repeat_error (test_slogans.SloganTests.test_retry_api_returns_repeat_error) ... ok
+test_retry_sends_previous_tagline_as_data (test_slogans.SloganTests.test_retry_sends_previous_tagline_as_data) ... ok
+test_assets_and_mobile_viewport_are_available (test_submission.SubmissionTests.test_assets_and_mobile_viewport_are_available) ... ok
+test_form_and_api_share_validation_and_normalization (test_submission.SubmissionTests.test_form_and_api_share_validation_and_normalization) ... ok
+test_malformed_json_is_rejected_without_ai (test_submission.SubmissionTests.test_malformed_json_is_rejected_without_ai) ... ok
+test_missing_key_is_safe_and_does_not_contact_provider (test_submission.SubmissionTests.test_missing_key_is_safe_and_does_not_contact_provider) ... ok
+test_registration_demo_and_official_link (test_submission.SubmissionTests.test_registration_demo_and_official_link) ... ok
+test_tc01_normal_may_studio (test_submission.SubmissionTests.test_tc01_normal_may_studio) ... ok
+test_tc02_normal_vietnamese_accents (test_submission.SubmissionTests.test_tc02_normal_vietnamese_accents) ... ok
+test_tc03_empty_input (test_submission.SubmissionTests.test_tc03_empty_input) ... ok
+test_tc04_invalid_input (test_submission.SubmissionTests.test_tc04_invalid_input) ... ok
+test_tc05_minimum_length (test_submission.SubmissionTests.test_tc05_minimum_length) ... ok
+test_tc06_over_maximum_length (test_submission.SubmissionTests.test_tc06_over_maximum_length) ... ok
+test_untrusted_brand_is_escaped_and_key_is_never_served (test_submission.SubmissionTests.test_untrusted_brand_is_escaped_and_key_is_never_served) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.106s
+
+OK

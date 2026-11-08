@@ -1,105 +1,67 @@
-# Trợ lý đặt tên thương hiệu & tên miền
+﻿# Tài liệu kỹ thuật — Trợ lý đặt tên thương hiệu & tên miền
 
-## Mô tả
+Nhóm KMPT · Bảng A · Đề 10. Hướng dẫn cài đặt và trạng thái hồ sơ nằm trong [README](README.md). Tài liệu này mô tả code hiện tại, không phải kế hoạch chưa thực hiện.
 
-Web một trang viết bằng Python cho cuộc thi vibe coding. Người dùng nhập tên thương hiệu; ứng dụng chuẩn hóa tên thành slug, dùng AI đánh giá độ dễ nhớ và dễ đọc, đồng thời gợi ý đúng 5 biến thể tên miền theo danh sách đuôi cấu hình. Trạng thái tên miền được kiểm tra ở **chế độ demo** và phải luôn ghi rõ **“Kết quả demo”** trên giao diện, tránh gây hiểu lầm rằng đã kiểm tra khả dụng thực tế. AI còn gợi ý đúng 3 slogan và 1 tagline. Người dùng có thể sao chép toàn bộ kết quả hoặc nhấn **“Đăng ký tên miền”** để mở trang nhà tài trợ.
+## Luồng xử lý
 
-Địa chỉ trang nhà tài trợ chưa được cung cấp; lưu dưới dạng cấu hình để điền khi triển khai. AI đánh giá tên dùng Gemini Interactions API; trạng thái tên miền demo dùng quy tắc xác định trong `domains.py`, không tra cứu thực tế.
+1. `GET /` dựng trang trống bằng Flask/Jinja.
+2. `POST /` nhận tên, trim và chuẩn hóa Unicode NFC, kiểm tra 2–30 ký tự và khả năng tạo slug bằng hàm `validated_brand` trong `app.py`.
+3. `slug.py` chuyển đ/Đ, bỏ dấu, ký tự đặc biệt; giữ a–z, 0–9, gạch ngang và bỏ gạch ngang ở hai đầu.
+4. `domains.py` ghép slug với 5 đuôi cố định, mô phỏng trạng thái theo quy tắc ổn định. Đây là phần mock có công bố, không phải gợi ý tên miền từ AI hoặc tra cứu WHOIS/RDAP.
+5. HTML có kết quả tên miền và `window.appState`. JavaScript gọi đồng thời `/api/evaluate` và `/api/slogans`.
+6. Hai API dùng cùng quy tắc kiểm tra tên với form, từ chối JSON sai kiểu trước khi gọi Gemini. Backend gọi Interactions API rồi kiểm tra nội dung đầu ra.
+7. JavaScript cập nhật độc lập từng vùng và state. Copy đọc state mới nhất. Khi gợi ý lại slogan lỗi, kết quả cũ được giữ.
 
-## Nền tảng và cấu trúc
+## Thành phần
 
-- Framework: **Flask 3.1.x** (Python 3.9 trở lên). Flask xử lý trang và các bước logic sau; Jinja dựng giao diện HTML.
-- Giao diện: HTML/CSS thuần, không cần framework giao diện hoặc bước biên dịch. Thiết kế theo mobile-first.
-- `app.py`: điểm vào Flask, route trang chủ, `POST /api/evaluate` và `POST /api/slogans`. `slug.py`: hàm `Transtoslug(brand)` chuẩn hóa tên. `domains.py`: danh sách đuôi cấu hình và trạng thái demo. `evaluation.py`: gọi Gemini và kiểm tra dữ liệu đánh giá. `slogans.py`: prompt và kiểm tra 3 slogan cùng tagline.
-- `templates/index.html`: bố cục trang; `templates/components/`: các khối giao diện riêng; `public/style.css`: toàn bộ kiểu dáng. `public/ai.js`: gửi request và hiển thị loading; `public/evaluation.js`: tải đánh giá tên; `public/slogans.js`: tải slogan/tagline và gợi ý lại; `public/actions.js`: sao chép kết quả và cấu hình liên kết nhà tài trợ. Flask dùng thư mục `public` làm nguồn CSS và JavaScript khi chạy cục bộ; Vercel phục vụ thư mục này trực tiếp.
-- `requirements.txt`: phụ thuộc Python. Cài và chạy cục bộ theo hướng dẫn bên dưới.
-- Bước 5 đã nối khối “Đánh giá tên” với AI phía máy chủ; khi chưa cấu hình API key hoặc AI gặp lỗi, phần tên miền vẫn hoạt động.
+| File | Trách nhiệm |
+|---|---|
+| `app.py` | Routes, kiểm tra đầu vào dùng chung, chọn liên kết đăng ký demo/chính thức |
+| `evaluation.py` | Gemini HTTP client, JSON Schema, kiểm tra điểm/nhận xét và thông báo lỗi an toàn |
+| `slogans.py` | Prompt, kiểm tra số lượng/độ dài slogan, tagline và phát hiện tagline lặp |
+| `templates/index.html` | Ghép các khối HTML, đưa state qua bộ lọc `tojson` |
+| `templates/registration_demo.html` | Trang đăng ký minh họa, không thu thập thông tin hoặc thanh toán |
+| `public/ai.js` | Request, loading và timeout trình duyệt |
+| `public/evaluation.js`, `public/slogans.js` | Hiển thị AI, nút thử lại, trạng thái đang tải |
+| `public/actions.js` | Nội dung sao chép, Clipboard API và phương án dự phòng |
+| `scripts/` | Chạy local, kiểm thử, kiểm chứng AI thật, kiểm tra trình duyệt và đóng ZIP |
 
-Trên máy phát triển hiện tại, alias `python` của WindowsApps đứng trước Python thật trong `PATH` và không chạy được. Mở PowerShell tại thư mục dự án, tạo môi trường ảo một lần rồi chạy ứng dụng:
+## Hợp đồng API
 
-```powershell
-$env:Path = "$env:LOCALAPPDATA\Python\bin;$env:Path"
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -m flask --app app run --debug
-```
+`POST /api/evaluate`, body `{"brand":"Mây Studio"}`. Thành công:
 
-Những lần sau chỉ cần lệnh cuối. Mở `http://127.0.0.1:5000/` để xem trang và nhấn `Ctrl+C` trong cửa sổ PowerShell để dừng. Đã xác nhận trang chủ và CSS trả về HTTP 200 trong môi trường này.
-
-## Cấu hình AI và triển khai
-
-1. Tạo Gemini API key trong [Google AI Studio](https://aistudio.google.com/apikey). Việc gọi mô hình có thể phát sinh chi phí hoặc gặp giới hạn lượt gọi tùy tài khoản và gói sử dụng.
-2. Trong PowerShell đang dùng để chạy app, nhập khóa qua lời nhắc ẩn (không ghi khóa vào code hoặc lệnh có thể nằm trong lịch sử):
-
-   ```powershell
-   $apiSecret = Read-Host "Gemini API key" -AsSecureString
-   $env:GEMINI_API_KEY = [System.Net.NetworkCredential]::new("", $apiSecret).Password
-   Remove-Variable apiSecret
-   .\.venv\Scripts\python.exe -m flask --app app run --debug
-   ```
-
-3. Mở `http://127.0.0.1:5000/`, nhập tên rồi bấm **Phân tích**. Endpoint `POST /api/evaluate` nhận JSON `{ "brand": "..." }`, giới hạn 50 ký tự và trả JSON `evaluation` đúng mẫu bên dưới. `POST /api/slogans` nhận cùng mẫu đầu vào, trả `{ "slogans": ["...", "...", "..."], "tagline": "..." }`. Nút **Gợi ý lại** gọi endpoint slogan để thay phương án trên trang. Ô nhập trên trang vẫn giới hạn 2–30 ký tự theo bước 2.
-4. Khi triển khai bằng Vercel, kết nối repo; `app.py` là entrypoint, `requirements.txt` khai báo thư viện và `vercel.json` chọn Flask, đặt lệnh build và thư mục đầu ra về mặc định của Flask. Dự án không cần Vite. Trong **Project Settings → Environment Variables**, thêm `GEMINI_API_KEY` cho môi trường cần dùng (Preview/Production). Model mặc định là `gemini-3.6-flash` cho cả đánh giá tên và slogan/tagline. Có thể chọn model khác bằng `GEMINI_MODEL`; biến này được ưu tiên hơn mặc định trong code, nên nếu đã đặt `gemini-3.5-flash-lite` trên Vercel thì cần đổi thành `gemini-3.6-flash` hoặc xóa biến để dùng mặc định mới. API key xác thực quyền truy cập, không tự chọn model. Triển khai lại sau khi thêm hoặc đổi biến. Biến `OPENAI_API_KEY` cũ không còn được ứng dụng sử dụng. Không dùng biến công khai như `NEXT_PUBLIC_...` cho khóa.
-
-Nếu Vercel từng được cấu hình cho Vite và báo `vite: command not found`, mở **Project Settings → Build and Deployment**: chọn **Framework Preset: Flask**, tắt **Build Command Override** đang chứa `vite build` và bỏ **Output Directory Override** như `dist` nếu có. Đẩy commit chứa `vercel.json` lên repo rồi redeploy. Vercel cần dùng thư mục gốc chứa `app.py` làm **Root Directory**.
-
-Sau khi bấm **Phân tích**, route trang chủ chỉ kiểm tra tên, tạo slug và trả ngay kết quả tên miền demo. JavaScript gọi đồng thời `/api/evaluate` và `/api/slogans`; mỗi ô AI hiển thị vòng loading và cập nhật độc lập ngay khi có kết quả. Lỗi một ô không chặn ô còn lại; nút **Thử lại** chỉ gọi lại đánh giá, **Gợi ý lại** chỉ gọi lại slogan/tagline. Trong lúc gợi ý lại, giữ kết quả slogan cũ và thêm loading. Loading kết thúc khi có lỗi mạng, lỗi API hoặc hết thời gian chờ phía trình duyệt (130 giây). Không tự gửi request AI khi chưa có tên hợp lệ; nếu tắt JavaScript, tên miền vẫn hiển thị và có hướng dẫn bật JavaScript cho phần AI.
-
-Lời gọi Gemini có timeout kết nối/đọc mặc định 30 giây, cấu hình bằng `GEMINI_TIMEOUT_SECONDS` (số nguyên 1–120). Đây là thời gian chờ thao tác mạng, không phải cam kết tổng thời gian xử lý. Khi triển khai, giới hạn thời gian chạy của hosting cần đủ lớn cho mức chờ đã chọn và phần xử lý còn lại; redeploy sau khi đổi biến môi trường. Không tự retry để tránh kéo dài chờ và gọi trùng khi yêu cầu trước có thể vẫn đang xử lý. Khi thiếu khóa, timeout hoặc AI trả dữ liệu sai, API trả lỗi JSON và giao diện giữ lại kết quả tên miền demo. Thông báo phân biệt lỗi kết nối, timeout, quyền truy cập, mô hình và hạn mức. Log máy chủ ghi model, thời gian đã chờ, loại kết quả và mã HTTP từ Gemini; không ghi API key hay nội dung người dùng. Log thành công dùng mức INFO, log thất bại dùng WARNING. Không cần đưa API key vào trình duyệt.
-
-## Liên kết nhà tài trợ và sao chép
-
-Tagline là câu mô tả giá trị cốt lõi do Gemini tạo từ tên thương hiệu, tối đa 15 từ. Kết quả chỉ nằm trong trang hiện tại, không lưu vào cơ sở dữ liệu. Nút **Gợi ý lại** gửi thêm `previous_tagline` đến `POST /api/slogans` để yêu cầu một câu khác. Nếu AI vẫn trả câu cũ (kể cả chỉ đổi hoa/thường hoặc dấu câu), API trả HTTP 409; giao diện giữ kết quả trước và báo rõ chưa thay đổi. Khi sửa tên trong ô nhập, cần bấm **Phân tích** trước khi gợi ý lại cho tên mới. Nội dung hiển thị và `window.appState.tagline` được cập nhật từ phản hồi API; sửa riêng chữ trong template không thay đổi dữ liệu AI hay nội dung sao chép.
-
-Khi đã phân tích được tên và tạo danh sách tên miền demo, nút **Copy tất cả** sao chép tên thương hiệu, slug, đánh giá AI nếu có, 5 tên miền kèm nhãn kết quả demo, 3 slogan và tagline nếu có. Nút dùng Clipboard API, rồi thử cách sao chép dự phòng trên trình duyệt cũ. Sau khi bấm **Gợi ý lại**, nội dung sao chép lấy slogan mới nhất.
-
-Nếu sao chép trong lúc AI đang tải lần đầu, phần chưa hoàn tất được ghi rõ là **Đang tải**. Có thể kiểm tra luồng bằng `.\.venv\Scripts\python.exe -m unittest discover -s tests -v` và `node --test tests/frontend.test.cjs`; kiểm tra JavaScript mô phỏng các request hoàn tất khác thứ tự, lỗi và thử lại từng phần.
-
-Để bật nút **Đăng ký tên miền**, điền URL trang nhà tài trợ chính thức vào hằng số `taitro_URL` ở đầu `public/actions.js`, ví dụ `const taitro_URL = "https://ten-mien-cua-nha-tai-tro.example";`. Khi chưa có URL, nút vẫn vô hiệu hóa và trang báo lý do. Liên kết mở tab mới với `target="_blank"` và `rel="noopener noreferrer"`.
-
-## Kế hoạch 8 bước
-
-1. Tạo khung giao diện tĩnh cho web một trang: ô nhập tên, khu vực đánh giá, danh sách tên miền, slogan, tagline và các nút hành động.
-2. Nhận tên thương hiệu, kiểm tra dữ liệu nhập hợp lệ và tạo `slug` đã chuẩn hóa để dùng trong tên miền.
-3. Sinh đúng 5 biến thể tên miền từ `slug` theo danh sách đuôi cấu hình.
-4. Gán trạng thái tên miền ở chế độ demo; hiển thị rõ nhãn **“Kết quả demo”** cạnh kết quả, không trình bày trạng thái như dữ liệu tra cứu thực tế.
-5. Dùng AI đánh giá độ dễ nhớ và dễ đọc của tên thương hiệu, gồm điểm số, nhận xét và phần tổng kết.
-6. Dùng AI gợi ý đúng 3 slogan và 1 tagline.
-7. Thêm nút sao chép toàn bộ thông tin kết quả và nút **“Đăng ký tên miền”** dẫn tới trang nhà tài trợ.
-8. Ghép các phần, kiểm thử luồng chính và trường hợp nhập không hợp lệ, hoàn thiện giao diện rồi triển khai.
-
-## Quy ước
-
-- Giao diện và thông báo dành cho người dùng dùng tiếng Việt.
-- Thiết kế mobile-first, dùng tốt trên màn hình nhỏ rồi mở rộng cho màn hình lớn.
-- Code đơn giản, dễ đọc; giữ dữ liệu và cách hiển thị nhất quán với hợp đồng bên dưới.
-- Mọi trạng thái `available` hoặc `taken` trong bản demo chỉ là **kết quả demo**.
-
-## Hợp đồng dữ liệu
-
-`state` là dữ liệu kết quả để hiển thị và sao chép. `domains` có đúng 5 phần tử khi tên nhập hợp lệ, mỗi phần tử có `domain` và `status` (`available` hoặc `taken`). `slogans` có đúng 3 phần tử khi AI tạo thành công; mỗi câu tối đa 10 từ, tagline tối đa 15 từ. Điểm số và nhận xét do AI trả về, trong đó `memorability` là độ dễ nhớ và `pronounceability` là độ dễ đọc.
-
-Quy tắc demo trong `Checkdomain(domain)`: slug dưới 5 ký tự hoặc nằm trong `shop`, `store`, `viet`, `coffee`, `online`, `vn`, `fashion` thì `taken`; còn lại lấy tổng mã Unicode của tên miền chia dư 3, dư 0 là `taken`, khác 0 là `available`. Kết quả chỉ để minh họa.
-
-```js
-state = {
-  brand: "...", // tên người dùng nhập
-  slug: "...", // tên đã chuẩn hóa dùng làm tên miền
-  domains: [
-    { domain: "...", status: "available" },
-    { domain: "...", status: "taken" },
-    { domain: "...", status: "available" },
-    { domain: "...", status: "taken" },
-    { domain: "...", status: "available" }
-  ],
-  evaluation: {
-    memorability: { score: 8, comment: "..." },
-    pronounceability: { score: 7, comment: "..." },
-    summary: "..."
-  },
-  slogans: ["...", "...", "..."],
-  tagline: "..."
+```json
+{
+  "memorability": {"score": 8, "comment": "Nhận xét minh họa"},
+  "pronounceability": {"score": 9, "comment": "Nhận xét minh họa"},
+  "summary": "Tóm tắt minh họa"
 }
 ```
 
-Tiến độ: đã hoàn thành bước 1 (khung giao diện tĩnh), bước 2 (nhập tên, kiểm tra hợp lệ, tạo slug), bước 3 (sinh năm biến thể tên miền), bước 4 (trạng thái tên miền demo), bước 5 (đánh giá tên bằng AI phía máy chủ), bước 6 (3 slogan, 1 tagline, gợi ý lại) và bước 7 (sao chép kết quả, nút đăng ký có cấu hình). Bước 8 trong kế hoạch chưa thực hiện; nút đăng ký chờ URL nhà tài trợ để hoạt động.
+Ví dụ trên chỉ mô tả cấu trúc, không phải kết quả Gemini thực tế. Điểm phải là số nguyên 1–10; mỗi nhận xét tối đa 25 từ, summary không rỗng.
+
+`POST /api/slogans`, body `{"brand":"Mây Studio","previous_tagline":""}`. Thành công là `{"slogans":["...","...","..."],"tagline":"..."}`. Đúng 3 slogan khác nhau, tối đa 10 từ/câu và tagline tối đa 15 từ. Tagline cũ được gửi như dữ liệu; so sánh sau NFC, casefold, bỏ dấu câu và chuẩn hóa khoảng trắng. Câu lặp trả HTTP 409.
+
+Lỗi đầu vào trả 400, thiếu key hoặc cấu hình timeout sai trả 503, timeout trả 504, lỗi kết nối/provider/đầu ra sai thường trả 502. JSON lỗi có `error`; khi có lỗi provider, chỉ chuyển `provider_status` và mã trong danh sách an toàn. Không trả raw body lỗi từ Gemini.
+
+## Cấu hình và bảo mật
+
+Key chỉ đọc từ `GEMINI_API_KEY`. Các biến tùy chọn: `GEMINI_MODEL`, `GEMINI_TIMEOUT_SECONDS`, `SPONSOR_DOMAIN_URL`; xem `.env.example`. File `.env` không tự được nạp.
+
+`SPONSOR_DOMAIN_URL` được đọc khi Flask khởi động. Chỉ dùng URL HTTPS có hostname và không kèm user/password; giá trị thiếu/sai chuyển về `/dang-ky-demo`. Jinja dựng link có `target="_blank"`, `rel="noopener noreferrer"`; không cần sửa frontend khi đổi URL chính thức. Trước khi có tên hợp lệ, nút bị vô hiệu hóa.
+
+Tên người dùng được escape trong HTML và đưa vào JavaScript bằng `tojson`. Nội dung AI hiển thị bằng `textContent`, không qua `innerHTML`. Prompt coi đầu vào là dữ liệu; backend vẫn kiểm tra schema/giới hạn vì prompt không bảo đảm đầu ra an toàn.
+
+Gemini nhận `store: false`. Log chỉ có model, thời gian, loại kết quả và trạng thái provider; không ghi tên thương hiệu hoặc key. Không có cơ chế xác thực/rate limit ở tầng ứng dụng; cần cân nhắc hạn mức và kiểm soát truy cập hosting khi vận hành công khai.
+
+## Timeout và xử lý lỗi
+
+Backend mặc định 30 giây cho thao tác mạng, cấu hình 1–120 giây. Trình duyệt dừng chờ sau 130 giây. Giới hạn thời gian hosting là một giới hạn độc lập cần kiểm tra khi triển khai. Không tự retry AI.
+
+Một phần AI lỗi không chặn phần kia hoặc danh sách tên miền. Khi đổi tên trong ô nhập, các nút AI cũ bị khóa cho đến khi bấm Phân tích lại. Copy trong lúc tải ghi rõ phần còn đang tải.
+
+## Kiểm chứng và bàn giao
+
+[25 test Python và 6 JavaScript](docs/reports/TEST_RESULTS.md) kiểm tra logic và lỗi với mock, không gọi AI thật. [8 ca Chrome](docs/reports/BROWSER_RESULTS.md) kiểm tra trình duyệt local, trong đó các phản hồi AI thành công được chặn và thay bằng fixture chỉ trong công cụ kiểm tra. Ảnh fixture có banner minh bạch.
+
+[Kiểm chứng Gemini thật](docs/reports/LIVE_AI.md) hiện chưa thực hiện vì không có key trong phiên. [Checklist](docs/SUBMISSION_CHECKLIST.md) ghi các việc còn lại; [minh chứng sử dụng AI](docs/AI_EVIDENCE.pdf) chỉ ghi lại phiên hoàn thiện thực tế.

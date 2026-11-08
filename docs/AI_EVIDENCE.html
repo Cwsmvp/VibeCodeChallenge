@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Minh chứng sử dụng AI — KMPT — Đề 10</title>
+  <style>
+    @page { size: A4; margin: 15mm; }
+    * { box-sizing: border-box; }
+    body { font: 10.5pt/1.38 Arial, sans-serif; color: #17251d; margin: 0; }
+    h1 { font-size: 18pt; margin: 0 0 5mm; color: #225f42; }
+    h2 { font-size: 11pt; margin: 4mm 0 1.5mm; }
+    p { margin: 0 0 2mm; }
+    blockquote { margin: 2mm 0; padding: 2mm 3mm; background: #f0f5ef; border-left: 3px solid #4d8b66; }
+    .meta { color: #526459; font-size: 9.5pt; }
+    section { break-inside: avoid; }
+    code { font-size: 9pt; }
+  </style>
+</head>
+<body>
+  <h1>Minh chứng sử dụng AI</h1>
+  <p><strong>Nhóm KMPT · Bảng A · Đề 10</strong> — Trợ lý đặt tên thương hiệu &amp; tên miền</p>
+  <p class="meta">Phiên hoàn thiện ngày 04/11/2026. Công cụ: Codex. Phạm vi: rà soát yêu cầu, cải thiện sản phẩm và chuẩn bị bàn giao; không thay thế lịch sử phát triển ban đầu.</p>
+  <section>
+    <h2>1. Mục tiêu và yêu cầu ban đầu</h2>
+    <p>Làm rõ cách chạy source trên máy khác mà không nộp API key. Trích đoạn yêu cầu thực tế của người dùng:</p>
+    <blockquote>“lúc mình nộp sources thì làm sao mà chạy local trên máy khác đc nhỉ”</blockquote>
+    <p>AI đọc README và code, xác nhận key được đọc từ biến môi trường máy chủ; tách hướng dẫn chạy local khỏi thông tin bí mật.</p>
+  </section>
+  <section>
+    <h2>2. Đối chiếu và phát hiện vấn đề</h2>
+    <blockquote>“mình vừa để 3 cái ảnh liên quan đến yêu cầu bài nộp ở trong folder mới bạn thử xem cho mình xem thế nào nhé”</blockquote>
+    <p>AI đọc cả 3 ảnh và đối chiếu đề 10 trên trang BTC. Phát hiện nút đăng ký chưa hoạt động, form/API khác giới hạn độ dài và 6 ca kiểm tra bàn giao chưa có mã chạy lại. Hồ sơ còn thiếu video, link online và minh chứng AI thật.</p>
+  </section>
+  <section>
+    <h2>3. Yêu cầu cải thiện và thay đổi thực tế</h2>
+    <blockquote>“hãy làm những cái hiện tại bạn làm đc để hoàn thành bài nộp”</blockquote>
+    <p>Thống nhất kiểm tra tên 2–30 ký tự; thêm trang đăng ký demo theo phương án đề cho phép và cấu hình URL chính thức qua biến môi trường. Bổ sung cấu hình mẫu không chứa key, bộ test bàn giao, công cụ chạy local/kiểm tra AI/đóng gói và kịch bản video 2 phút.</p>
+  </section>
+  <section>
+    <h2>4. Kiểm tra lại và giới hạn minh chứng</h2>
+    <p><strong>25 test Python và 6 test JavaScript đạt.</strong> Kiểm tra Chrome thật đạt 8 ca, gồm giao diện mobile 390px, xử lý thiếu key, hiển thị AI bằng fixture và sao chép vào clipboard trình duyệt. Báo cáo và ảnh nằm trong <code>docs/reports/</code>, <code>docs/screenshots/</code>.</p>
+    <p><strong>Chưa có API key trong phiên này:</strong> các phản hồi AI dùng để kiểm tra giao diện là fixture có ghi nhãn; không tuyên bố đã gọi Gemini thật hoặc hoàn tất triển khai online. Những phần còn lại được ghi trong checklist bàn giao.</p>
+  </section>
+</body>
+</html>

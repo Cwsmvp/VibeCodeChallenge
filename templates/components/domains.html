@@ -1,11 +1,12 @@
-<section class="result-card" aria-labelledby="domains-title">
+<section class="result-card domains-card" id="domains-card" aria-labelledby="domains-title">
   <div class="card-topline">
     <span class="card-icon" aria-hidden="true">◎</span>
     <span class="card-number" aria-hidden="true">02 / 03</span>
   </div>
   <h2 id="domains-title">Gợi ý tên miền</h2>
+  <p class="card-preview js-control">{{ state.domains | length }} tên miền gợi ý · Trạng thái demo</p>
   {% if state.domains %}
-    <p class="demo-notice">Kết quả demo, chỉ mang tính minh họa</p>
+    <p class="demo-notice">Kết quả demo, không phải dữ liệu thật</p>
     <ul class="domain-list">
       {% for item in state.domains %}
         <li class="domain-item">

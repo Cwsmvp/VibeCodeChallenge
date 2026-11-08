@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng ký tên miền — Trang demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="hero">
+        <div class="eyebrow">TRANG MINH HỌA</div>
+        <h1>Đăng ký <span>tên miền.</span></h1>
+        <p>Liên kết đến nhà tài trợ chính thức đang được cập nhật. Đây là trang demo, chưa tiếp nhận đăng ký hoặc thanh toán.</p>
+      </header>
+      <section class="input-panel">
+        <h2>Tiếp tục khám phá tên thương hiệu</h2>
+        <p>Bạn có thể quay lại ứng dụng để so sánh các ý tưởng và sao chép kết quả yêu thích.</p>
+        <a class="button button-primary action-link" href="{{ url_for('index') }}">Về trang chủ</a>
+      </section>
+    </main>
+  </body>
+</html>

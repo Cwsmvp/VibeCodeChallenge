@@ -1,0 +1,118 @@
+{
+  "checked_at_utc": "2026-11-04T09:32:26.953161+00:00",
+  "scope": "Flask test client and Node VM tests; no real Gemini requests or browser interaction",
+  "python": {
+    "status": "passed",
+    "total": 25,
+    "failed": 0,
+    "errors": 0,
+    "cases": [
+      {
+        "id": "test_gemini.GeminiTests.test_bad_timeout_config_does_not_make_request",
+        "status": "passed"
+      },
+      {
+        "id": "test_gemini.GeminiTests.test_custom_timeout_is_reported_without_retry_or_secret_in_logs",
+        "status": "passed"
+      },
+      {
+        "id": "test_gemini.GeminiTests.test_provider_failures_expose_safe_status_and_specific_message",
+        "status": "passed"
+      },
+      {
+        "id": "test_gemini.GeminiTests.test_slogans_endpoint_returns_timeout_json",
+        "status": "passed"
+      },
+      {
+        "id": "test_gemini.GeminiTests.test_success_uses_default_timeout_and_reads_interactions_response",
+        "status": "passed"
+      },
+      {
+        "id": "test_gemini.GeminiTests.test_wrapped_timeout_and_connection_failure_are_distinct",
+        "status": "passed"
+      },
+      {
+        "id": "test_slogans.SloganTests.test_initial_page_returns_domains_and_loading_without_calling_ai",
+        "status": "passed"
+      },
+      {
+        "id": "test_slogans.SloganTests.test_invalid_brand_does_not_start_loading_or_ai",
+        "status": "passed"
+      },
+      {
+        "id": "test_slogans.SloganTests.test_invalid_previous_tagline_does_not_call_ai",
+        "status": "passed"
+      },
+      {
+        "id": "test_slogans.SloganTests.test_repeated_tagline_is_reported_even_with_cosmetic_changes",
+        "status": "passed"
+      },
+      {
+        "id": "test_slogans.SloganTests.test_retry_api_forwards_previous_tagline",
+        "status": "passed"
+      },
+      {
+        "id": "test_slogans.SloganTests.test_retry_api_returns_repeat_error",
+        "status": "passed"
+      },
+      {
+        "id": "test_slogans.SloganTests.test_retry_sends_previous_tagline_as_data",
+        "status": "passed"
+      },
+      {
+        "id": "test_submission.SubmissionTests.test_assets_and_mobile_viewport_are_available",
+        "status": "passed"
+      },
+      {
+        "id": "test_submission.SubmissionTests.test_form_and_api_share_validation_and_normalization",
+        "status": "passed"
+      },
+      {
+        "id": "test_submission.SubmissionTests.test_malformed_json_is_rejected_without_ai",
+        "status": "passed"
+      },
+      {
+        "id": "test_submission.SubmissionTests.test_missing_key_is_safe_and_does_not_contact_provider",
+        "status": "passed"
+      },
+      {
+        "id": "test_submission.SubmissionTests.test_registration_demo_and_official_link",
+        "status": "passed"
+      },
+      {
+        "id": "test_submission.SubmissionTests.test_tc01_normal_may_studio",
+        "status": "passed"
+      },
+      {
+        "id": "test_submission.SubmissionTests.test_tc02_normal_vietnamese_accents",
+        "status": "passed"
+      },
+      {
+        "id": "test_submission.SubmissionTests.test_tc03_empty_input",
+        "status": "passed"
+      },
+      {
+        "id": "test_submission.SubmissionTests.test_tc04_invalid_input",
+        "status": "passed"
+      },
+      {
+        "id": "test_submission.SubmissionTests.test_tc05_minimum_length",
+        "status": "passed"
+      },
+      {
+        "id": "test_submission.SubmissionTests.test_tc06_over_maximum_length",
+        "status": "passed"
+      },
+      {
+        "id": "test_submission.SubmissionTests.test_untrusted_brand_is_escaped_and_key_is_never_served",
+        "status": "passed"
+      }
+    ]
+  },
+  "frontend": {
+    "status": "passed",
+    "total": 6,
+    "passed": 6,
+    "failed": 0
+  }
+}

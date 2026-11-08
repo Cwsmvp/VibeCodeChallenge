@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeFlow - Giao diện Tối ưu Khoảng Cách</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0b0614',
+                        t1: '#552586',
+                        t2: '#6A359C',
+                        t3: '#804FB3',
+                        t4: '#9969C7',
+                        t5: '#B589D6',
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base Glassmorphism */
+        .glass-panel {
+            background: rgba(30, 15, 52, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(181, 137, 214, 0.22);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(181, 137, 214, 0.45);
+            box-shadow: 0 10px 30px rgba(128, 79, 179, 0.2);
+        }
+
+        /* 3 Khối chính */
+        .main-card-bg {
+            background: linear-gradient(145deg, rgba(153, 105, 199, 0.32), rgba(181, 137, 214, 0.18));
+            border: 1px solid rgba(181, 137, 214, 0.35);
+            box-shadow: 0 8px 24px rgba(106, 53, 156, 0.2);
+        }
+
+        /* Nút điều hướng */
+        .nav-btn-primary {
+            background: linear-gradient(135deg, #6A359C, #804FB3);
+            border: 1px solid rgba(181, 137, 214, 0.35);
+            min-width: 180px;
+            height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            color: #ffffff;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(106, 53, 156, 0.25);
+            cursor: pointer;
+        }
+        .nav-btn-primary:hover {
+            background: linear-gradient(135deg, #804FB3, #9969C7);
+            box-shadow: 0 0 20px rgba(153, 105, 199, 0.45);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn-secondary {
+            background: rgba(85, 37, 134, 0.35);
+            border: 1px solid rgba(181, 137, 214, 0.25);
+            min-width: 180px;
+            height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            color: #ffffff;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .nav-btn-secondary:hover {
+            background: rgba(106, 53, 156, 0.55);
+            border-color: rgba(181, 137, 214, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Lưới công nghệ */
+        .bg-grid {
+            background-size: 36px 36px;
+            background-image: 
+                linear-gradient(to right, rgba(128, 79, 179, 0.06) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(128, 79, 179, 0.06) 1px, transparent 1px);
+        }
+
+        /* View Transition Morphing trên desktop */
+        @media (min-width: 1024px) {
+            #userBlock { view-transition-name: user-block; }
+            #block1 { view-transition-name: block-one; }
+            #block2 { view-transition-name: block-two; }
+            #block3 { view-transition-name: block-three; }
+            #dashboardBlock { view-transition-name: dash-block; }
+            #heroIntro { view-transition-name: hero-text; }
+            #actionControls { view-transition-name: action-ctrls; }
+
+            ::view-transition-group(*) {
+                animation-duration: 0.55s;
+                animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+            }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body id="pageBody" class="bg-darkBg text-white font-sans min-h-screen flex flex-col justify-between overflow-x-hidden relative bg-grid overflow-hidden lg:overflow-visible">
+
+    <!-- Đốm sáng nền -->
+    <div class="absolute top-[-10%] left-1/3 w-[35rem] h-[35rem] bg-t1/25 rounded-full filter blur-[140px] pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-1/4 w-[40rem] h-[40rem] bg-t2/15 rounded-full filter blur-[160px] pointer-events-none"></div>
+
+    <!-- ================= THANH ĐIỀU HƯỚNG DỌC BÊN CẠNH (MOBILE) ================= -->
+    <aside id="mobileSideNav" class="fixed right-2.5 top-1/2 -translate-y-1/2 z-50 flex flex-col space-y-3 bg-t1/40 border border-t5/20 px-2 py-3 rounded-full backdrop-blur-md hidden lg:!hidden shadow-xl">
+        <button onclick="scrollToMobileSection('mobile-sec-1')" id="m-dot-1" class="w-2.5 h-2.5 rounded-full bg-t4 shadow-md shadow-t4 border border-white transition-all scale-125" title="Trang 1"></button>
+        <button onclick="scrollToMobileSection('mobile-sec-2')" id="m-dot-2" class="w-2 h-2 rounded-full bg-white/30 transition-all" title="Trang 2"></button>
+        <button onclick="scrollToMobileSection('mobile-sec-3')" id="m-dot-3" class="w-2 h-2 rounded-full bg-white/30 transition-all" title="Trang 3"></button>
+    </aside>
+
+    <!-- ================= HEADER ================= -->
+    <header class="w-full max-w-7xl mx-auto px-5 py-3.5 flex items-center justify-between border-b border-t5/15 relative z-50 flex-shrink-0">
+        <div onclick="requestChangeState(1)" class="flex items-center space-x-2.5 cursor-pointer group">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-t2 to-t5 flex items-center justify-center font-bold text-white shadow-lg shadow-t2/40 group-hover:scale-105 transition-transform text-sm">
+                V
+            </div>
+            <span class="text-lg sm:text-xl font-bold tracking-wider bg-gradient-to-r from-white via-t5 to-t4 bg-clip-text text-transparent">VIBEFLOW</span>
+        </div>
+
+        <div class="flex items-center space-x-2.5">
+            <div class="relative hidden sm:block">
+                <input type="password" id="apiKeyInput" placeholder="Nhập API Key..." 
+                    class="bg-t1/20 border border-t5/20 rounded-xl px-3 py-1.5 text-xs sm:text-sm text-t5 placeholder-t5/40 focus:outline-none focus:border-t4 focus:ring-1 focus:ring-t4 w-44 transition-all">
+            </div>
+            <button onclick="toggleNamesList()" class="bg-t2/30 hover:bg-t3/40 border border-t5/25 text-white text-xs px-3.5 py-1.5 rounded-xl transition-all flex items-center space-x-1.5">
+                <span>👥 Danh sách</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ================= BỐ CỤC CHO DESKTOP (MÀN HÌNH LỚN: lg trở lên) ================= -->
+    <main class="hidden lg:flex flex-grow w-full max-w-7xl mx-auto px-6 py-4 flex-col justify-center relative z-40">
+        
+        <!-- DÒNG CHỮ GIỚI THIỆU (Gom sát vào khối điền tên với mb-2) -->
+        <div id="heroIntro" class="text-center max-w-2xl mx-auto mb-2 transition-all">
+            <span class="text-[11px] font-semibold tracking-widest text-t5 uppercase bg-t1/30 px-3 py-0.5 rounded-full border border-t5/20">Khởi đầu trải nghiệm</span>
+            <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight mt-1 mb-1 leading-tight">
+                GIỚI THIỆU <span class="bg-gradient-to-r from-t4 to-white bg-clip-text text-transparent">TRANG WEB CỦA BẠN</span>
+            </h1>
+            <p class="text-t5/70 text-xs md:text-sm">Giao diện responsive thế hệ mới với hiệu ứng dịch chuyển khối mượt mà.</p>
+        </div>
+
+        <div id="layoutContainer" class="w-full flex flex-col items-center justify-center">
+            
+            <div id="blocksWrapper" class="w-full grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
+                
+                <!-- CỘT TRÁI -->
+                <div id="leftColumn" class="flex flex-col gap-4">
+                    <!-- KHỐI PHỤ / KHỐI TÊN: Ở Trang 1 đặt ngay sát dưới phần giới thiệu -->
+                    <div id="userBlock" class="glass-panel rounded-2xl p-5 transition-all duration-300">
+                        <div id="userFormContent" class="space-y-3">
+                            <h3 class="text-sm font-semibold text-white flex items-center space-x-2">
+                                <span class="w-2 h-2 rounded-full bg-t4 animate-ping"></span>
+                                <span>Khối điền tên</span>
+                            </h3>
+                            <div>
+                                <input type="text" id="nameInput" placeholder="Nhập tên của bạn để bắt đầu..." 
+                                    class="w-full bg-darkBg/70 border border-t5/30 rounded-xl px-4 py-3 text-white placeholder-t5/40 text-sm focus:outline-none focus:border-t4 focus:ring-1 focus:ring-t4 transition-all">
+                                <p id="errorMsg" class="text-rose-400 text-xs mt-1.5 hidden">Vui lòng nhập tên của bạn trước khi tiếp tục!</p>
+                            </div>
+                        </div>
+
+                        <div id="userBadgeContent" class="hidden items-center justify-between h-full">
+                            <div class="flex items-center space-x-3">
+                                <div id="avatarLetter" class="w-9 h-9 rounded-xl bg-t2/50 border border-t5/20 flex items-center justify-center font-bold text-white text-sm">U</div>
+                                <div>
+                                    <div class="text-[10px] text-t5/60 font-semibold uppercase tracking-wider">Người dùng phụ trách</div>
+                                    <div id="displayName" class="text-sm font-bold text-white leading-tight">[Tên]</div>
+                                </div>
+                            </div>
+                            <button onclick="requestChangeState(1)" class="text-xs text-t5/70 hover:text-white underline">Sửa tên</button>
+                        </div>
+                    </div>
+
+                    <!-- KHỐI 1 CHÍNH -->
+                    <div id="block1" class="main-card-bg rounded-2xl p-5 flex flex-col justify-between hidden">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[11px] font-bold tracking-wider text-t5 uppercase bg-t1/40 px-2 py-0.5 rounded border border-t5/20">Khối 01</span>
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            </div>
+                            <h3 class="text-base font-bold text-white">Khối Dữ Liệu Chính 1</h3>
+                            <p class="text-xs text-t5/80 mt-1 leading-relaxed">Khối lưu trữ cấu hình và dữ liệu xử lý cốt lõi của phiên làm việc.</p>
+                        </div>
+                        <div class="mt-3 pt-2.5 border-t border-t5/15 flex justify-between items-center text-[11px] text-t5/70">
+                            <span>Status: Active</span>
+                            <span>ID: #B1-CORE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CỘT PHẢI -->
+                <div id="rightColumn" class="flex flex-col gap-4">
+                    <!-- KHỐI 2 CHÍNH -->
+                    <div id="block2" class="main-card-bg rounded-2xl p-5 flex flex-col justify-between hidden">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[11px] font-bold tracking-wider text-t5 uppercase bg-t1/40 px-2 py-0.5 rounded border border-t5/20">Khối 02</span>
+                                <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                            </div>
+                            <h3 class="text-base font-bold text-white">Khối Phân Tích Dữ Liệu 2</h3>
+                            <p class="text-xs text-t5/80 mt-1 leading-relaxed">Module tự động tính toán và điều phối phân luồng dữ liệu thời gian thực.</p>
+                        </div>
+                        <div class="mt-3 pt-2.5 border-t border-t5/15 flex justify-between items-center text-[11px] text-t5/70">
+                            <span>Analysis: Synchronized</span>
+                            <span>ID: #B2-ANALYTIC</span>
+                        </div>
+                    </div>
+
+                    <!-- KHỐI 3 CHÍNH -->
+                    <div id="block3" class="main-card-bg rounded-2xl p-5 flex flex-col justify-between hidden">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[11px] font-bold tracking-wider text-t5 uppercase bg-t1/40 px-2 py-0.5 rounded border border-t5/20">Khối 03</span>
+                                <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                            </div>
+                            <h3 class="text-base font-bold text-white">Khối Đồng Bộ Kết Nối 3</h3>
+                            <p class="text-xs text-t5/80 mt-1 leading-relaxed">Cổng kết nối với các điểm API ngoại vi và đồng bộ hóa đám mây.</p>
+                        </div>
+                        <div class="mt-3 pt-2.5 border-t border-t5/15 flex justify-between items-center text-[11px] text-t5/70">
+                            <span>Gateway: Connected</span>
+                            <span>ID: #B3-SYNC</span>
+                        </div>
+                    </div>
+
+                    <!-- DASHBOARD (TRANG 3) -->
+                    <div id="dashboardBlock" class="glass-panel rounded-2xl p-5 bg-slate-900/60 border border-slate-600/40 hidden flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-white/10 pb-2.5 mb-3">
+                                <div class="flex items-center space-x-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+                                    <span class="text-[11px] text-slate-400 font-mono ml-2">system_telemetry.panel</span>
+                                </div>
+                                <span class="text-[10px] bg-slate-800 text-slate-300 font-mono px-2 py-0.5 rounded border border-slate-700">DASHBOARD</span>
+                            </div>
+
+                            <h3 class="text-lg font-bold text-white mb-1.5">Bảng Điều Khiển Tổng Hợp</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed mb-4">Dữ liệu hoàn thiện được kết xuất từ 3 khối chính trên màn hình giám sát.</p>
+
+                            <div class="grid grid-cols-2 gap-2.5 mb-3">
+                                <div class="bg-black/40 p-3 rounded-xl border border-white/5">
+                                    <div class="text-[10px] text-slate-400 uppercase font-semibold">Tốc độ phản hồi</div>
+                                    <div class="text-base font-bold text-white mt-0.5">16.4 <span class="text-xs font-normal text-slate-400">ms</span></div>
+                                </div>
+                                <div class="bg-black/40 p-3 rounded-xl border border-white/5">
+                                    <div class="text-[10px] text-slate-400 uppercase font-semibold">Độ sẵn sàng</div>
+                                    <div class="text-base font-bold text-emerald-400 mt-0.5">99.98%</div>
+                                </div>
+                                <div class="bg-black/40 p-3 rounded-xl border border-white/5 col-span-2">
+                                    <div class="text-[10px] text-slate-400 uppercase font-semibold mb-1">Hiệu năng xử lý 3 khối</div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-gradient-to-r from-t2 via-t4 to-white h-full w-[82%] rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-[11px] text-slate-500 pt-2.5 border-t border-white/5 flex justify-between items-center">
+                            <span>Status: Full Operational</span>
+                            <span>3 Stacks Connected</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- CỤM NÚT ĐIỀU HƯỚNG TRÊN DESKTOP -->
+            <div id="actionControls" class="mt-6 mb-1 w-full max-w-7xl flex items-center justify-center flex-shrink-0 relative z-20">
+                <div id="state1Buttons" class="w-full flex justify-center">
+                    <button onclick="submitName()" class="nav-btn-primary">
+                        <span>Xác nhận</span>
+                        <span class="ml-2">➔</span>
+                    </button>
+                </div>
+                <div id="state2Buttons" class="w-full hidden justify-between items-center">
+                    <button onclick="requestChangeState(1)" class="nav-btn-secondary">
+                        <span class="mr-2">⬅</span>
+                        <span>Quay lại Trang 1</span>
+                    </button>
+                    <button onclick="requestChangeState(3)" class="nav-btn-primary">
+                        <span>Sang Trang 3</span>
+                        <span class="ml-2">👉</span>
+                    </button>
+                </div>
+                <div id="state3Buttons" class="w-full hidden justify-center items-center">
+                    <button onclick="requestChangeState(2)" class="nav-btn-primary">
+                        <span class="mr-2">⬅</span>
+                        <span>Quay lại Trang 2</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ================= BỐ CỤC MOBILE (ĐÃ TỐI ƯU KHOẢNG CÁCH GẦN NHAU) ================= -->
+    <div id="mobileScrollWrapper" class="block lg:hidden flex-grow px-4 py-3 space-y-4">
+        
+        <!-- SECTION 1 (MOBILE): Giới thiệu & Khối điền tên nằm sát nhau -->
+        <section id="mobile-sec-1" class="flex flex-col items-center text-center space-y-3 pt-2">
+            <div class="space-y-1">
+                <span class="text-[10px] font-semibold tracking-widest text-t5 uppercase bg-t1/30 px-2.5 py-0.5 rounded-full border border-t5/20">Khởi đầu trải nghiệm</span>
+                <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight mt-1 leading-tight">
+                    GIỚI THIỆU <span class="bg-gradient-to-r from-t4 to-white bg-clip-text text-transparent">TRANG WEB</span>
+                </h1>
+                <p class="text-t5/70 text-xs">Giao diện tương thích tối ưu cho điện thoại.</p>
+            </div>
+
+            <!-- Khối điền tên mobile (nằm ngay sát phần giới thiệu) -->
+            <div class="w-full max-w-sm glass-panel rounded-2xl p-4 text-left space-y-2.5">
+                <h3 class="text-xs font-semibold text-white flex items-center space-x-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-t4 animate-ping"></span>
+                    <span>Khối điền tên</span>
+                </h3>
+                <input type="text" id="mNameInput" placeholder="Nhập tên của bạn để bắt đầu..." 
+                    class="w-full bg-darkBg/80 border border-t5/30 rounded-xl px-3.5 py-2.5 text-white placeholder-t5/40 text-xs focus:outline-none focus:border-t4">
+                <p id="mErrorMsg" class="text-rose-400 text-[11px] hidden">Vui lòng nhập tên của bạn trước!</p>
+            </div>
+
+            <!-- Nút xác nhận mobile -->
+            <div class="w-full max-w-sm pt-1">
+                <button onclick="submitNameMobile()" class="nav-btn-primary w-full">
+                    <span>Xác nhận</span>
+                    <span class="ml-2">➔</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- SECTION 2 (MOBILE): Khi xác nhận tên sẽ hiện ngay sát bên dưới (khoảng cách gọn gàng) -->
+        <section id="mobile-sec-2" class="hidden flex-col space-y-3 pt-2">
+            <!-- Khối phụ hiển thị tên -->
+            <div class="glass-panel rounded-xl px-3.5 py-2.5 flex items-center space-x-2.5 border-l-4 border-l-t5">
+                <div id="mAvatarLetter" class="w-7 h-7 rounded-lg bg-t2/60 flex items-center justify-center font-bold text-white text-xs">U</div>
+                <div>
+                    <div class="text-[9px] text-t5/60 uppercase">Người dùng</div>
+                    <div id="mDisplayName" class="text-xs font-bold text-white">[Tên]</div>
+                </div>
+            </div>
+
+            <!-- 3 Khối chính tương tự nhau xếp dọc cách nhau rất gần -->
+            <div class="main-card-bg rounded-xl p-3.5 space-y-1">
+                <div class="flex items-center justify-between">
+                    <span class="text-[9px] font-bold text-t5 uppercase bg-t1/40 px-1.5 py-0.5 rounded">Khối 01</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                </div>
+                <h4 class="text-sm font-bold text-white">Khối Dữ Liệu Chính 1</h4>
+                <p class="text-[11px] text-t5/80">Khối lưu trữ cấu hình và dữ liệu xử lý cốt lõi của phiên làm việc.</p>
+            </div>
+
+            <div class="main-card-bg rounded-xl p-3.5 space-y-1">
+                <div class="flex items-center justify-between">
+                    <span class="text-[9px] font-bold text-t5 uppercase bg-t1/40 px-1.5 py-0.5 rounded">Khối 02</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                </div>
+                <h4 class="text-sm font-bold text-white">Khối Phân Tích Dữ Liệu 2</h4>
+                <p class="text-[11px] text-t5/80">Module tự động tính toán và điều phối phân luồng dữ liệu thời gian thực.</p>
+            </div>
+
+            <div class="main-card-bg rounded-xl p-3.5 space-y-1">
+                <div class="flex items-center justify-between">
+                    <span class="text-[9px] font-bold text-t5 uppercase bg-t1/40 px-1.5 py-0.5 rounded">Khối 03</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                </div>
+                <h4 class="text-sm font-bold text-white">Khối Đồng Bộ Kết Nối 3</h4>
+                <p class="text-[11px] text-t5/80">Cổng kết nối với các điểm API ngoại vi và đồng bộ hóa đám mây.</p>
+            </div>
+        </section>
+
+        <!-- SECTION 3 (MOBILE): Nối tiếp ngay dưới section 2 với khoảng cách hợp lý -->
+        <section id="mobile-sec-3" class="hidden flex-col space-y-3 pt-2 pb-6">
+            <div class="glass-panel rounded-2xl p-4 bg-slate-900/70 border border-slate-600/40 space-y-3.5">
+                <div class="flex items-center justify-between border-b border-white/10 pb-2">
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span class="text-[9px] text-slate-400 font-mono ml-1.5">system_telemetry</span>
+                    </div>
+                    <span class="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">DASHBOARD</span>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-bold text-white">Bảng Điều Khiển Tổng Hợp</h3>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Khối hệ thống có chiều dài lớn và tính chất hoàn toàn độc lập với các khối chức năng.</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-black/50 p-2.5 rounded-xl border border-white/5">
+                        <div class="text-[9px] text-slate-400 uppercase">Tốc độ phản hồi</div>
+                        <div class="text-sm font-bold text-white mt-0.5">16.4 ms</div>
+                    </div>
+                    <div class="bg-black/50 p-2.5 rounded-xl border border-white/5">
+                        <div class="text-[9px] text-slate-400 uppercase">Độ sẵn sàng</div>
+                        <div class="text-sm font-bold text-emerald-400 mt-0.5">99.98%</div>
+                    </div>
+                    <div class="bg-black/50 p-2.5 rounded-xl border border-white/5 col-span-2">
+                        <div class="text-[9px] text-slate-400 uppercase mb-1">Hiệu năng xử lý 3 khối</div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-gradient-to-r from-t2 to-white h-full w-[85%] rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-1 text-center">
+                    <button onclick="scrollToMobileSection('mobile-sec-1')" class="text-[11px] text-t5 hover:underline">↑ Lên đầu trang</button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="w-full max-w-7xl mx-auto px-5 py-3 flex items-center justify-between border-t border-t5/15 text-xs text-t5/70 relative z-50 flex-shrink-0">
+        <div class="font-medium">© 2026 VIBEFLOW</div>
+
+        <div id="footerNavigation" class="hidden lg:block">
+            <div class="flex items-center space-x-3.5 bg-t1/30 border border-t5/20 px-3.5 py-1.5 rounded-full backdrop-blur-md">
+                <button onclick="requestChangeState(1)" id="dot-1" class="w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-t5 transition-all outline-none" title="Trang 1"></button>
+                <button onclick="requestChangeState(2)" id="dot-2" class="w-3 h-3 rounded-full bg-white/20 hover:bg-t5 transition-all outline-none" title="Trang 2"></button>
+                <button onclick="requestChangeState(3)" id="dot-3" class="w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-t5 transition-all outline-none" title="Trang 3"></button>
+            </div>
+        </div>
+
+        <div class="hidden sm:block">Tech-Glassmorphism UI</div>
+    </footer>
+
+    <!-- ================= MODAL LỊCH SỬ TÊN ================= -->
+    <div id="namesModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="w-full max-w-md bg-[#160d26] border border-t5/30 rounded-2xl p-5 shadow-2xl transform scale-95 transition-transform duration-300 mx-4">
+            <div class="flex items-center justify-between border-b border-t5/20 pb-2.5 mb-3">
+                <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+                    <span>📋 Danh sách tên đã điền</span>
+                </h3>
+                <button onclick="toggleNamesList()" class="text-t5 hover:text-white text-lg font-bold">&times;</button>
+            </div>
+            <div id="namesContainer" class="space-y-1.5 max-h-56 overflow-y-auto pr-1"></div>
+            <div class="mt-3 pt-2.5 border-t border-t5/15 flex justify-between items-center">
+                <button onclick="clearHistory()" class="text-xs text-rose-400 hover:underline">Xóa lịch sử</button>
+                <button onclick="toggleNamesList()" class="bg-t2/40 hover:bg-t2 text-white text-xs px-3.5 py-1.5 rounded-lg transition-colors">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= SCRIPT ================= -->
+    <script>
+        let currentState = 1;
+        let isNameEntered = false;
+
+        const heroIntro = document.getElementById('heroIntro');
+        const userBlock = document.getElementById('userBlock');
+        const userFormContent = document.getElementById('userFormContent');
+        const userBadgeContent = document.getElementById('userBadgeContent');
+        const block1 = document.getElementById('block1');
+        const block2 = document.getElementById('block2');
+        const block3 = document.getElementById('block3');
+        const dashboardBlock = document.getElementById('dashboardBlock');
+        
+        const leftColumn = document.getElementById('leftColumn');
+        const rightColumn = document.getElementById('rightColumn');
+        const blocksWrapper = document.getElementById('blocksWrapper');
+
+        const state1Buttons = document.getElementById('state1Buttons');
+        const state2Buttons = document.getElementById('state2Buttons');
+        const state3Buttons = document.getElementById('state3Buttons');
+        const footerNav = document.getElementById('footerNavigation');
+
+        applyLayoutState(1);
+
+        function handleNameConfirmation(name) {
+            document.getElementById('displayName').textContent = name;
+            document.getElementById('avatarLetter').textContent = name.charAt(0).toUpperCase();
+
+            document.getElementById('mDisplayName').textContent = name;
+            document.getElementById('mAvatarLetter').textContent = name.charAt(0).toUpperCase();
+
+            saveNameToStorage(name);
+            isNameEntered = true;
+
+            footerNav.classList.remove('hidden');
+
+            const body = document.getElementById('pageBody');
+            body.classList.remove('overflow-hidden');
+            body.classList.add('overflow-y-auto');
+
+            document.getElementById('mobile-sec-2').classList.remove('hidden');
+            document.getElementById('mobile-sec-2').classList.add('flex');
+            document.getElementById('mobile-sec-3').classList.remove('hidden');
+            document.getElementById('mobile-sec-3').classList.add('flex');
+
+            document.getElementById('mobileSideNav').classList.remove('hidden');
+        }
+
+        function submitName() {
+            const input = document.getElementById('nameInput');
+            const errorMsg = document.getElementById('errorMsg');
+            const name = input.value.trim();
+
+            if (!name) {
+                errorMsg.classList.remove('hidden');
+                input.focus();
+                return;
+            }
+            errorMsg.classList.add('hidden');
+            handleNameConfirmation(name);
+            requestChangeState(2);
+        }
+
+        function submitNameMobile() {
+            const input = document.getElementById('mNameInput');
+            const errorMsg = document.getElementById('mErrorMsg');
+            const name = input.value.trim();
+
+            if (!name) {
+                errorMsg.classList.remove('hidden');
+                input.focus();
+                return;
+            }
+            errorMsg.classList.add('hidden');
+            handleNameConfirmation(name);
+            scrollToMobileSection('mobile-sec-2');
+        }
+
+        function scrollToMobileSection(sectionId) {
+            if (!isNameEntered && sectionId !== 'mobile-sec-1') return;
+            const el = document.getElementById(sectionId);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        const mobileSections = ['mobile-sec-1', 'mobile-sec-2', 'mobile-sec-3'];
+        window.addEventListener('scroll', () => {
+            if (window.innerWidth >= 1024) return;
+            let current = '';
+            mobileSections.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && !el.classList.contains('hidden')) {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+                        current = id;
+                    }
+                }
+            });
+
+            if (current) {
+                const index = current === 'mobile-sec-1' ? 1 : (current === 'mobile-sec-2' ? 2 : 3);
+                updateMobileDots(index);
+            }
+        });
+
+        function updateMobileDots(activeIndex) {
+            for (let i = 1; i <= 3; i++) {
+                const dot = document.getElementById(`m-dot-${i}`);
+                if (!dot) continue;
+                if (i === activeIndex) {
+                    dot.className = "w-2.5 h-2.5 rounded-full bg-t4 shadow-md shadow-t4 border border-white transition-all scale-125";
+                } else {
+                    dot.className = "w-2 h-2 rounded-full bg-white/30 transition-all scale-100";
+                }
+            }
+        }
+
+        document.getElementById('nameInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') submitName(); });
+        document.getElementById('mNameInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') submitNameMobile(); });
+
+        function requestChangeState(targetState) {
+            if (targetState === currentState) return;
+
+            if (!isNameEntered && targetState > 1) {
+                document.getElementById('nameInput').focus();
+                return;
+            }
+
+            if (document.startViewTransition) {
+                document.startViewTransition(() => {
+                    applyLayoutState(targetState);
+                });
+            } else {
+                runFLIPAnimation(() => {
+                    applyLayoutState(targetState);
+                });
+            }
+
+            currentState = targetState;
+            updateFooterDots();
+        }
+
+        function applyLayoutState(state) {
+            if (state === 1) {
+                heroIntro.classList.remove('hidden');
+                blocksWrapper.className = "w-full max-w-lg mx-auto flex flex-col items-center";
+                leftColumn.className = "w-full";
+                rightColumn.className = "hidden";
+
+                userBlock.classList.remove('hidden');
+                userBlock.className = "glass-panel rounded-2xl p-5 transition-all duration-300 w-full";
+                userFormContent.classList.remove('hidden');
+                userBadgeContent.classList.add('hidden');
+
+                block1.classList.add('hidden');
+                block2.classList.add('hidden');
+                block3.classList.add('hidden');
+                dashboardBlock.classList.add('hidden');
+
+                state1Buttons.classList.remove('hidden');
+                state1Buttons.classList.add('flex');
+                state2Buttons.classList.add('hidden');
+                state3Buttons.classList.add('hidden');
+
+            } else if (state === 2) {
+                heroIntro.classList.add('hidden');
+                blocksWrapper.className = "w-full grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch";
+                leftColumn.className = "flex flex-col gap-4";
+                rightColumn.className = "flex flex-col gap-4";
+
+                userBlock.classList.remove('hidden');
+                userBlock.className = "glass-panel rounded-2xl px-5 py-3 transition-all duration-300";
+                userFormContent.classList.add('hidden');
+                userBadgeContent.classList.remove('hidden');
+                userBadgeContent.classList.add('flex');
+
+                block1.classList.remove('hidden');
+                block1.className = "main-card-bg rounded-2xl p-5 flex flex-col justify-between flex-grow min-h-[200px]";
+
+                leftColumn.innerHTML = '';
+                leftColumn.appendChild(userBlock);
+                leftColumn.appendChild(block1);
+
+                block2.classList.remove('hidden');
+                block2.className = "main-card-bg rounded-2xl p-5 flex flex-col justify-between min-h-[150px]";
+                
+                block3.classList.remove('hidden');
+                block3.className = "main-card-bg rounded-2xl p-5 flex flex-col justify-between min-h-[150px]";
+
+                rightColumn.innerHTML = '';
+                rightColumn.appendChild(block2);
+                rightColumn.appendChild(block3);
+
+                dashboardBlock.classList.add('hidden');
+
+                state1Buttons.classList.add('hidden');
+                state2Buttons.classList.remove('hidden');
+                state2Buttons.classList.add('flex');
+                state3Buttons.classList.add('hidden');
+
+            } else if (state === 3) {
+                heroIntro.classList.add('hidden');
+                blocksWrapper.className = "w-full grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch";
+                leftColumn.className = "flex flex-col gap-3";
+                rightColumn.className = "flex flex-col";
+
+                userBlock.classList.add('hidden');
+
+                block1.classList.remove('hidden');
+                block1.className = "main-card-bg rounded-xl p-3.5 flex flex-col justify-between flex-1 min-h-[95px]";
+                
+                block2.classList.remove('hidden');
+                block2.className = "main-card-bg rounded-xl p-3.5 flex flex-col justify-between flex-1 min-h-[95px]";
+
+                block3.classList.remove('hidden');
+                block3.className = "main-card-bg rounded-xl p-3.5 flex flex-col justify-between flex-1 min-h-[95px]";
+
+                leftColumn.innerHTML = '';
+                leftColumn.appendChild(block1);
+                leftColumn.appendChild(block2);
+                leftColumn.appendChild(block3);
+
+                rightColumn.innerHTML = '';
+                dashboardBlock.classList.remove('hidden');
+                dashboardBlock.classList.add('flex');
+                dashboardBlock.className = "glass-panel rounded-2xl p-5 bg-slate-900/60 border border-slate-600/40 flex flex-col justify-between h-full";
+                rightColumn.appendChild(dashboardBlock);
+
+                state1Buttons.classList.add('hidden');
+                state2Buttons.classList.add('hidden');
+                state3Buttons.classList.remove('hidden');
+                state3Buttons.classList.add('flex');
+            }
+        }
+
+        function updateFooterDots() {
+            for (let i = 1; i <= 3; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                if (!dot) continue;
+                if (i === currentState) {
+                    dot.className = "w-3 h-3 rounded-full bg-t4 shadow-lg shadow-t4/50 border border-white transition-all scale-110";
+                } else {
+                    dot.className = "w-2.5 h-2.5 rounded-full bg-white/20 hover:bg-t5 transition-all outline-none scale-100";
+                }
+            }
+        }
+
+        function runFLIPAnimation(domChangeCallback) {
+            const elements = [userBlock, block1, block2, block3, dashboardBlock];
+            const firstRects = new Map();
+
+            elements.forEach(el => {
+                if (el && el.offsetParent !== null) {
+                    firstRects.set(el, el.getBoundingClientRect());
+                }
+            });
+
+            domChangeCallback();
+
+            elements.forEach(el => {
+                if (el && el.offsetParent !== null && firstRects.has(el)) {
+                    const first = firstRects.get(el);
+                    const last = el.getBoundingClientRect();
+                    const dx = first.left - last.left;
+                    const dy = first.top - last.top;
+
+                    if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+                        el.animate([
+                            { transform: `translate(${dx}px, ${dy}px)` },
+                            { transform: 'translate(0, 0)' }
+                        ], {
+                            duration: 500,
+                            easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+                        });
+                    }
+                }
+            });
+        }
+
+        function saveNameToStorage(name) {
+            let list = getNamesFromStorage();
+            if (!list.includes(name)) {
+                list.unshift(name);
+                localStorage.setItem('vf_names_history', JSON.stringify(list));
+            }
+        }
+
+        function getNamesFromStorage() {
+            const list = localStorage.getItem('vf_names_history');
+            return list ? JSON.parse(list) : [];
+        }
+
+        function toggleNamesList() {
+            const modal = document.getElementById('namesModal');
+            const container = document.getElementById('namesContainer');
+            const isOpen = !modal.classList.contains('pointer-events-none');
+
+            if (!isOpen) {
+                const history = getNamesFromStorage();
+                container.innerHTML = '';
+
+                if (history.length === 0) {
+                    container.innerHTML = `<p class="text-t5/50 text-xs italic text-center py-3">Chưa có tên nào được lưu...</p>`;
+                } else {
+                    history.forEach(name => {
+                        const item = document.createElement('div');
+                        item.className = "flex items-center justify-between bg-darkBg/90 border border-t5/20 px-3 py-2 rounded-xl text-xs";
+                        item.innerHTML = `
+                            <span class="font-medium text-white">${name}</span>
+                            <button onclick="useStoredName('${name}')" class="text-[11px] bg-t3 hover:bg-t4 text-white px-2 py-0.5 rounded transition-colors">Chọn</button>
+                        `;
+                        container.appendChild(item);
+                    });
+                }
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modal.children[0].classList.remove('scale-95');
+            } else {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                modal.children[0].classList.add('scale-95');
+            }
+        }
+
+        function useStoredName(name) {
+            document.getElementById('nameInput').value = name;
+            document.getElementById('mNameInput').value = name;
+            toggleNamesList();
+            if (window.innerWidth >= 1024) {
+                submitName();
+            } else {
+                submitNameMobile();
+            }
+        }
+
+        function clearHistory() {
+            if (confirm("Bạn muốn xóa toàn bộ lịch sử tên?")) {
+                localStorage.removeItem('vf_names_history');
+                toggleNamesList();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -3,33 +3,75 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f7f7f2">
+    <meta name="theme-color" content="#0b0614">
     <meta name="description" content="Trợ lý đặt tên thương hiệu và tên miền: đánh giá tên, khám phá ý tưởng tên miền và slogan.">
-    <title>Trợ lý đặt tên thương hiệu &amp; tên miền</title>
+    <title>VibeFlow — Trợ lý đặt tên thương hiệu &amp; tên miền</title>
+    <script>document.documentElement.classList.add('js');</script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="{{ url_for('static', filename='ai.js') }}" defer></script>
     <script src="{{ url_for('static', filename='evaluation.js') }}" defer></script>
     <script src="{{ url_for('static', filename='slogans.js') }}" defer></script>
     <script src="{{ url_for('static', filename='actions.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='interface.js') }}" defer></script>
   </head>
-  <body>
-    <main class="page-shell">
-      <header class="hero">
-        <div class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> TRỢ LÝ SÁNG TẠO THƯƠNG HIỆU</div>
-        <h1>Tên hay cho ý tưởng <span>lớn.</span></h1>
-        <p>Khám phá tiềm năng tên thương hiệu, gợi ý tên miền và câu chữ giúp ý tưởng của bạn được ghi nhớ.</p>
-      </header>
-
-      {% include 'components/brand_form.html' %}
-
-      <div class="results" aria-label="Khu vực kết quả">
-        {% include 'components/evaluation.html' %}
-        {% include 'components/domains.html' %}
-        {% include 'components/slogans.html' %}
+  <body class="flow-app" data-stage="{{ '2' if state.slug else '1' }}">
+    <header class="site-header">
+      <a class="wordmark" href="{{ url_for('index') }}" aria-label="VibeFlow — Trang chủ"><span class="brand-symbol" aria-hidden="true">V</span><span>VIBEFLOW</span></a>
+      <div class="header-tools"><span class="header-caption">Trợ lý sáng tạo thương hiệu</span><button class="button button-secondary button-small js-control" id="open-history" type="button"><span aria-hidden="true">☷</span> Danh sách</button></div>
+    </header>
+    <main class="page-shell" id="workspace">
+      <div class="hero" id="hero-intro">
+        <div class="eyebrow">KHỞI ĐẦU Ý TƯỞNG CỦA BẠN</div>
+        <h1>TÊN HAY CHO <span>THƯƠNG HIỆU CỦA BẠN</span></h1>
+        <p>Đánh giá tên, khám phá tên miền và tìm câu chữ giúp bạn được ghi nhớ.</p>
       </div>
 
-      {% include 'components/actions.html' %}
+      <div class="workspace-grid">
+        {% include 'components/brand_form.html' %}
+        <section class="brand-badge glass-panel js-control" aria-label="Thương hiệu đang phân tích">
+          <span class="brand-avatar" aria-hidden="true">{{ state.brand[:1] | upper }}</span>
+          <div><span class="micro-label">THƯƠNG HIỆU CỦA BẠN</span><h2>{{ state.brand }}</h2></div>
+          <button class="text-button" type="button" data-go="1">Sửa tên</button>
+        </section>
+
+        <div class="results" aria-label="Khu vực kết quả">
+          {% include 'components/evaluation.html' %}
+          {% include 'components/domains.html' %}
+          {% include 'components/slogans.html' %}
+        </div>
+
+        <section class="dashboard glass-panel js-control" aria-labelledby="dashboard-title" tabindex="-1">
+          <div class="dashboard-topline"><span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>brand_overview.panel</span><span class="dashboard-label">TỔNG HỢP</span></div>
+          <div class="dashboard-heading"><span class="micro-label">TỪ Ý TƯỞNG ĐẾN THƯƠNG HIỆU</span><h2 id="dashboard-title">Bức tranh thương hiệu</h2><p>Kết quả mới nhất cho <strong>{{ state.brand }}</strong>.</p></div>
+          <div class="dashboard-metrics">
+            <div class="metric-tile"><span>Dễ nhớ</span><strong id="overview-memory">—</strong></div>
+            <div class="metric-tile"><span>Dễ đọc &amp; phát âm</span><strong id="overview-pronunciation">—</strong></div>
+            <div class="metric-tile"><span>Tên miền gợi ý · demo</span><strong>{{ state.domains | length }} <small>tên miền</small></strong></div>
+            <div class="metric-tile"><span>Slogan đã tạo</span><strong id="overview-slogans">—</strong></div>
+          </div>
+          <div class="overview-tagline"><span class="micro-label">TAGLINE CỦA BẠN</span><p id="overview-tagline">Chưa có tagline AI.</p></div>
+          <p class="overview-status" id="overview-status" role="status"></p>
+          <p class="dashboard-note">Trạng thái tên miền là dữ liệu demo. Kết quả AI chỉ hiển thị khi tải thành công.</p>
+        </section>
+      </div>
+
+      <div class="result-controls">
+        <nav class="stage-actions js-control" aria-label="Điều hướng kết quả">
+          <button class="button button-secondary" type="button" data-go="1">← <span>Sửa tên thương hiệu</span></button>
+          <button class="button button-primary next-stage" type="button" data-go="3">Xem tổng hợp <span aria-hidden="true">→</span></button>
+          <button class="button button-secondary previous-stage" type="button" data-go="2">← Xem chi tiết</button>
+        </nav>
+        {% include 'components/actions.html' %}
+      </div>
     </main>
+    <footer class="site-footer"><span>© 2026 VIBEFLOW</span><nav class="step-navigation js-control" aria-label="Các bước tạo thương hiệu"><button type="button" data-go="1" aria-label="Bước 1: Nhập tên"><span></span></button><button type="button" data-go="2" aria-label="Bước 2: Kết quả"><span></span></button><button type="button" data-go="3" aria-label="Bước 3: Tổng hợp"><span></span></button></nav><span class="footer-caption">Một cái tên. Vô vàn khả năng.</span></footer>
+    <nav class="mobile-sections js-control" aria-label="Di chuyển giữa các kết quả"><a href="#evaluation-card" aria-label="Đánh giá tên"></a><a href="#domains-card" aria-label="Tên miền"></a><a href="#slogans-card" aria-label="Slogan"></a></nav>
+    <dialog id="history-dialog" aria-labelledby="history-title">
+      <div class="dialog-heading"><h2 id="history-title">Danh sách tên đã nhập</h2><button class="icon-button" id="close-history" type="button" aria-label="Đóng danh sách">×</button></div>
+      <p class="history-note">Lưu trên trình duyệt này để bạn dễ thử lại.</p>
+      <ul class="history-list" id="history-list"></ul>
+      <div class="dialog-actions"><button class="text-button danger-text" id="clear-history" type="button">Xóa lịch sử</button><button class="button button-secondary button-small" id="done-history" type="button">Đóng</button></div>
+    </dialog>
     <script>window.appState = {{ state | tojson }};</script>
   </body>
 </html>

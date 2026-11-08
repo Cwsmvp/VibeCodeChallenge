@@ -1,6 +1,3 @@
-// Điền URL nhà tài trợ tại đây khi có địa chỉ chính thức.
-const taitro_URL = "";
-
 function formatResults(state) {
   const lines = [
     `Tên thương hiệu: ${state.brand}`,
@@ -18,7 +15,7 @@ function formatResults(state) {
     lines.push(state.pending?.evaluation ? "Đang tải đánh giá AI…" : "Chưa có đánh giá AI.");
   }
 
-  lines.push("", "GỢI Ý TÊN MIỀN — KẾT QUẢ DEMO, CHỈ MANG TÍNH MINH HỌA");
+  lines.push("", "GỢI Ý TÊN MIỀN — KẾT QUẢ DEMO, KHÔNG PHẢI DỮ LIỆU THẬT");
   for (const item of state.domains) {
     lines.push(`${item.domain}: ${item.status === "available" ? "Còn trống" : "Đã đăng ký"} (kết quả demo)`);
   }
@@ -52,14 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const feedback = document.getElementById("action-feedback");
   const state = window.appState;
   if (!copyButton || !registerLink || !state) return;
-
-  if (state.slug && taitro_URL) {
-    registerLink.href = taitro_URL;
-    registerLink.removeAttribute("aria-disabled");
-    registerLink.removeAttribute("tabindex");
-  } else if (state.slug) {
-    feedback.textContent = "Chưa có liên kết nhà tài trợ để đăng ký tên miền.";
-  }
 
   copyButton.addEventListener("click", async () => {
     if (!state.slug) return;

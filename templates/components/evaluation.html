@@ -1,9 +1,11 @@
-<section class="result-card" aria-labelledby="evaluation-title">
+<section class="result-card evaluation-card" id="evaluation-card" aria-labelledby="evaluation-title">
   <div class="card-topline">
     <span class="card-icon" aria-hidden="true">✦</span>
     <span class="card-number" aria-hidden="true">01 / 03</span>
   </div>
   <h2 id="evaluation-title">Đánh giá tên</h2>
+  <p class="card-description">Khám phá độ dễ nhớ và khả năng phát âm của tên thương hiệu.</p>
+  <p class="card-preview js-control" id="evaluation-preview">Chưa có đánh giá AI.</p>
   <div id="evaluation-content" class="ai-content" aria-live="polite" aria-busy="{{ 'true' if state.slug else 'false' }}">
   {% if state.slug %}
     {% with loading_message = 'Đang đánh giá tên thương hiệu…' %}

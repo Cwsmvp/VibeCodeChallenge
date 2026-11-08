@@ -1,5 +1,6 @@
 <div class="action-row" aria-label="Hành động với kết quả">
   <button class="button button-secondary" id="copy-all" type="button" {% if not state.slug %}disabled{% endif %}>Copy tất cả <span aria-hidden="true">⧉</span></button>
-  <a class="button button-dark action-link" id="register-domain" target="_blank" rel="noopener noreferrer" aria-disabled="true" tabindex="-1">Đăng ký tên miền <span aria-hidden="true">↗</span></a>
+  <a class="button button-dark action-link" id="register-domain" target="_blank" rel="noopener noreferrer" {% if state.slug %}href="{{ registration_url }}"{% else %}aria-disabled="true" tabindex="-1"{% endif %}>Đăng ký tên miền <span aria-hidden="true">↗</span></a>
 </div>
+{% if registration_demo %}<p class="action-feedback">Liên kết đăng ký hiện là bản demo.</p>{% endif %}
 <p class="action-feedback" id="action-feedback" role="status" aria-live="polite"></p>

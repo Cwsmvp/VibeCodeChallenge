@@ -1,19 +1,24 @@
 <section class="input-panel" aria-labelledby="input-title">
-  <div class="section-heading">
-    <span class="step-mark" aria-hidden="true">01</span>
-    <div>
-      <h2 id="input-title">Tên thương hiệu của bạn</h2>
-      <p>Bắt đầu với một cái tên bạn đang cân nhắc.</p>
+  <form method="post" novalidate>
+    <div class="form-fields glass-panel">
+      <div class="section-heading">
+        <span class="eyebrow-dot" aria-hidden="true"></span>
+        <div>
+          <h2 id="input-title">Tên thương hiệu của bạn</h2>
+          <p>Bắt đầu với một cái tên bạn đang cân nhắc.</p>
+        </div>
+      </div>
+      <div class="input-row">
+        <label class="sr-only" for="brand-name">Nhập tên thương hiệu</label>
+        <input id="brand-name" name="brand" type="text" placeholder="Ví dụ: Mây Studio" autocomplete="off" minlength="2" maxlength="30" required value="{{ state.brand }}" {% if error %}aria-invalid="true" aria-describedby="brand-error"{% elif state.slug %}aria-describedby="brand-slug"{% endif %}>
+      </div>
+      {% if error %}
+        <p class="input-feedback input-error" id="brand-error" role="alert">{{ error }}</p>
+      {% elif state.slug %}
+        <p class="input-feedback input-success" id="brand-slug">Slug tên miền: <strong>{{ state.slug }}</strong></p>
+      {% endif %}
+      <p class="input-hint">2–30 ký tự · Có thể sử dụng tiếng Việt có dấu</p>
     </div>
-  </div>
-  <form class="input-row" method="post" novalidate>
-    <label class="sr-only" for="brand-name">Nhập tên thương hiệu</label>
-    <input id="brand-name" name="brand" type="text" placeholder="Ví dụ: Mây Studio" autocomplete="off" value="{{ state.brand }}" {% if error %}aria-invalid="true" aria-describedby="brand-error"{% elif state.slug %}aria-describedby="brand-slug"{% endif %}>
-    <button class="button button-primary" type="submit">Phân tích <span aria-hidden="true">↗</span></button>
+    <button class="button button-primary submit-brand" type="submit">Phân tích <span aria-hidden="true">→</span></button>
   </form>
-  {% if error %}
-    <p class="input-feedback input-error" id="brand-error" role="alert">{{ error }}</p>
-  {% elif state.slug %}
-    <p class="input-feedback input-success" id="brand-slug">Slug tên miền: <strong>{{ state.slug }}</strong></p>
-  {% endif %}
 </section>

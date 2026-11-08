@@ -1,0 +1,82 @@
+{
+  "checked_at_utc": "2026-11-08T13:00:19.706Z",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "Empty page renders without AI requests",
+      "scope": "local application",
+      "status": "passed"
+    },
+    {
+      "name": "Invalid brand shows validation and no results",
+      "scope": "local application",
+      "status": "passed"
+    },
+    {
+      "name": "Five demo domains remain usable when both AI routes lack a key",
+      "scope": "local application, no API key",
+      "status": "passed"
+    },
+    {
+      "name": "Summary shows unavailable AI honestly and keeps the three cards",
+      "scope": "local application, no API key",
+      "status": "passed"
+    },
+    {
+      "name": "History can reopen a name, focus its input and clear local storage",
+      "scope": "real dialog and localStorage",
+      "status": "passed"
+    },
+    {
+      "name": "Registration CTA opens a labelled demo destination",
+      "scope": "local application",
+      "status": "passed"
+    },
+    {
+      "name": "390px mobile viewport has no horizontal overflow",
+      "scope": "local application",
+      "status": "passed"
+    },
+    {
+      "name": "Results and summary adapt across 320, 390, 768 and 1024px",
+      "scope": "real responsive layout",
+      "status": "passed"
+    },
+    {
+      "name": "AI panels render and retry uses the previous tagline",
+      "scope": "intercepted AI fixtures, no Gemini request",
+      "status": "passed"
+    },
+    {
+      "name": "Summary reflects the actual latest AI scores, slogans and tagline",
+      "scope": "intercepted AI fixtures, no Gemini request",
+      "status": "passed"
+    },
+    {
+      "name": "Copy writes the latest results to the actual browser clipboard",
+      "scope": "real clipboard with intercepted AI fixtures",
+      "status": "passed"
+    },
+    {
+      "name": "No uncaught JavaScript exceptions",
+      "scope": "all browser checks",
+      "status": "passed"
+    },
+    {
+      "name": "Form and results remain visible without JavaScript",
+      "scope": "progressive enhancement",
+      "status": "passed"
+    }
+  ],
+  "scope": "Real headless Chrome; live local Flask without API key, then explicitly intercepted AI fixtures. No Gemini requests.",
+  "screenshots": [
+    "docs/screenshots/desktop-empty.png",
+    "docs/screenshots/desktop-without-ai.png",
+    "docs/screenshots/desktop-overview-without-ai.png",
+    "docs/screenshots/mobile-without-ai.png",
+    "docs/screenshots/mobile-overview-without-ai.png",
+    "docs/screenshots/desktop-overview-ai-fixture.png",
+    "docs/screenshots/desktop-ai-fixture.png"
+  ],
+  "runtime_errors": []
+}
