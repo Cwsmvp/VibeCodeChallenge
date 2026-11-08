@@ -12,7 +12,7 @@ from app import app
 
 def page_state(response):
     html = response.get_data(as_text=True)
-    return json.loads(re.search(r"window\.appState = (.*?);</script>", html).group(1))
+    return json.loads(re.search(r'<script id="app-state" type="application/json">(.*?)</script>', html).group(1))
 
 
 class SubmissionTests(unittest.TestCase):

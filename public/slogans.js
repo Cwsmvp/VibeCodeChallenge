@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+function initializeSlogans() {
   const card = document.getElementById("slogans-card");
   const button = document.getElementById("slogans-retry");
   if (!card || !button || !window.appState?.slug) return;
@@ -45,8 +45,8 @@ document.addEventListener("DOMContentLoaded", () => {
       phrase.textContent = result.tagline;
       tagline.append(label, phrase);
       content.replaceChildren(list, tagline);
-      window.appState.slogans = result.slogans;
-      window.appState.tagline = result.tagline;
+      state.slogans = result.slogans;
+      state.tagline = result.tagline;
       feedback.textContent = "Đã tạo phương án mới.";
     } catch (error) {
       feedback.textContent = `${error.message || "Chưa thể gợi ý slogan lúc này."}${hasResults ? " Kết quả đang hiển thị chưa được thay đổi." : ""}`;
@@ -60,4 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   button.addEventListener("click", loadSlogans);
   loadSlogans();
-});
+}
+document.addEventListener("DOMContentLoaded", initializeSlogans);
+document.addEventListener("brand:ready", initializeSlogans);

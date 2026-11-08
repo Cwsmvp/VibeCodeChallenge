@@ -155,6 +155,14 @@ dialog::backdrop { background: #000a; backdrop-filter: blur(6px); }
 .history-empty { padding: 20px 0; color: var(--muted); text-align: center; font-size: 12px; line-height: 1.6; }
 .dialog-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #b589d626; }
 .danger-text { color: #ffa6bb; }
+.form-fields, .brand-badge { view-transition-name: user-block; }
+.hero { view-transition-name: hero-intro; }
+.result-controls { view-transition-name: action-controls; }
+.evaluation-card { view-transition-name: evaluation; }
+.domains-card { view-transition-name: domains; }
+#slogans-card { view-transition-name: slogans; }
+.dashboard { view-transition-name: dashboard; }
+::view-transition-group(*) { animation-duration: .55s; animation-timing-function: cubic-bezier(.22,1,.36,1); }
 @media (min-width: 1024px) {
   .js [data-stage="2"] .workspace-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); grid-template-rows: auto auto 1fr; gap: 18px; align-items: stretch; }
   .js [data-stage="2"] .results, .js [data-stage="3"] .results { display: contents; }
@@ -167,12 +175,6 @@ dialog::backdrop { background: #000a; backdrop-filter: blur(6px); }
   .js [data-stage="3"] .domains-card { grid-column: 1; grid-row: 2; }
   .js [data-stage="3"] #slogans-card { grid-column: 1; grid-row: 3; }
   .js [data-stage="3"] .dashboard { grid-column: 2; grid-row: 1 / 4; }
-  .brand-badge { view-transition-name: brand-badge; }
-  .evaluation-card { view-transition-name: evaluation; }
-  .domains-card { view-transition-name: domains; }
-  #slogans-card { view-transition-name: slogans; }
-  .dashboard { view-transition-name: dashboard; }
-  ::view-transition-group(*) { animation-duration: .45s; animation-timing-function: cubic-bezier(.22,1,.36,1); }
 }
 @media (max-width: 1023px) {
   .page-shell { max-width: 650px; }
@@ -188,6 +190,7 @@ dialog::backdrop { background: #000a; backdrop-filter: blur(6px); }
   .page-shell { width: calc(100% - 40px); padding-block: 30px; }
   .wordmark { gap: 8px; font-size: 17px; }
   .header-caption, .footer-caption { display: none; }
+  .header-tools { gap: 8px; }
   .hero { margin-bottom: 20px; }
   .hero h1 { max-width: 350px; margin-block: 15px 12px; font-size: 29px; }
   .hero p { font-size: 12px; }
@@ -204,9 +207,4 @@ dialog::backdrop { background: #000a; backdrop-filter: blur(6px); }
   .metric-tile strong { font-size: 21px; }
   .brand-badge { padding: 16px; gap: 10px; }
   .brand-badge .micro-label { font-size: 8px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-  .button:not(:disabled):hover { transform: none; }
 }

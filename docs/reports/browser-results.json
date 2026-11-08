@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-11-08T13:00:19.706Z",
+  "checked_at_utc": "2026-11-08T15:08:42.457Z",
   "status": "passed",
   "checks": [
     {
@@ -10,6 +10,11 @@
     {
       "name": "Invalid brand shows validation and no results",
       "scope": "local application",
+      "status": "passed"
+    },
+    {
+      "name": "Submitting a brand morphs the input into its badge without reloading",
+      "scope": "actual native View Transition animations",
       "status": "passed"
     },
     {
@@ -38,6 +43,26 @@
       "status": "passed"
     },
     {
+      "name": "Mobile has a visible fallback animation without View Transition support",
+      "scope": "actual Web Animations playback",
+      "status": "passed"
+    },
+    {
+      "name": "Animations always play despite reduced motion or a previously saved off preference",
+      "scope": "explicit product preference, actual Web Animations",
+      "status": "passed"
+    },
+    {
+      "name": "Stage navigation still works when both animation APIs are unavailable",
+      "scope": "simulated unsupported browser",
+      "status": "passed"
+    },
+    {
+      "name": "Failed native snapshots still animate using the fallback",
+      "scope": "simulated browser snapshot rejection, real Web Animations",
+      "status": "passed"
+    },
+    {
       "name": "Results and summary adapt across 320, 390, 768 and 1024px",
       "scope": "real responsive layout",
       "status": "passed"
@@ -55,6 +80,11 @@
     {
       "name": "Copy writes the latest results to the actual browser clipboard",
       "scope": "real clipboard with intercepted AI fixtures",
+      "status": "passed"
+    },
+    {
+      "name": "Network failure is recoverable and a new brand loads each AI panel once",
+      "scope": "same document, intercepted AI fixtures",
       "status": "passed"
     },
     {

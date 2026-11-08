@@ -43,7 +43,7 @@ function legacyCopy(text) {
   return copied;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function initializeActions() {
   const copyButton = document.getElementById("copy-all");
   const registerLink = document.getElementById("register-domain");
   const feedback = document.getElementById("action-feedback");
@@ -67,4 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     feedback.textContent = copied ? "Đã sao chép" : "Không thể sao chép. Hãy thử lại.";
   });
-});
+}
+document.addEventListener("DOMContentLoaded", initializeActions);
+document.addEventListener("brand:ready", initializeActions);

@@ -101,6 +101,52 @@ python3 -m venv .venv
 
 Nếu dùng khóa từ biến môi trường, đặt biến trong terminal hoặc công cụ quản lý secret trước khi chạy. Không cần sửa mã nguồn. Tham số `--port 5001` đổi cổng khi cổng mặc định đang bận. Lệnh Flask thông thường vẫn dùng được nếu đã đặt các biến môi trường cần thiết: `python -m flask --app app run`.
 
+### Hướng dẫn API key khi chạy local
+
+**Chuẩn bị key:** đăng nhập [Google AI Studio — API Keys](https://aistudio.google.com/apikey), tạo key bằng **Create API key** nếu chưa có và sao chép key để nhập ở bước dưới. Xem thêm [hướng dẫn API key chính thức của Google](https://ai.google.dev/gemini-api/docs/api-key?hl=en).
+
+**Cách 1 — Nhập key ẩn khi khởi động (khuyên dùng):** sau khi cài phụ thuộc, chạy trong terminal tương tác:
+
+```powershell
+# Windows / PowerShell
+.\.venv\Scripts\python.exe scripts/run_local.py
+```
+
+```bash
+# macOS / Linux
+.venv/bin/python scripts/run_local.py
+```
+
+Khi xuất hiện `Gemini API key (nhap an, Enter de bo qua AI):`, dán key rồi nhấn Enter. Terminal không hiển thị ký tự khi nhập; đây là hành vi bình thường. Key chỉ được dùng trong tiến trình chạy local, không ghi vào file cấu hình. Nếu nhấn Enter mà không nhập key, ứng dụng vẫn mở nhưng không có kết quả AI.
+
+**Cách 2 — Đặt biến môi trường trong PowerShell:** phù hợp khi muốn chạy lại server nhiều lần trong cùng terminal. Nhập key bằng lời nhắc ẩn để không đưa giá trị key vào lịch sử lệnh:
+
+```powershell
+$localGeminiKey = Read-Host "Gemini API key" -AsSecureString
+$env:GEMINI_API_KEY = [System.Net.NetworkCredential]::new("", $localGeminiKey).Password
+Remove-Variable localGeminiKey
+.\.venv\Scripts\python.exe scripts/run_local.py
+```
+
+Khi `GEMINI_API_KEY` đã được đặt, công cụ dùng key đó và không hỏi lại. Biến đặt theo cách này chỉ áp dụng cho terminal hiện tại và các tiến trình được khởi chạy từ đó. Sau khi dừng server bằng `Ctrl+C`, có thể xóa key khỏi terminal:
+
+```powershell
+Remove-Item Env:\GEMINI_API_KEY -ErrorAction SilentlyContinue
+```
+
+**Kiểm tra hoạt động:** mở `http://127.0.0.1:5000/`, nhập **Mây Studio** rồi bấm **Phân tích**. Khi Gemini trả lời thành công, phần **Đánh giá tên** có điểm/nhận xét và phần **Slogan & Tagline** có 3 slogan cùng 1 tagline. Dòng khởi động báo đã có cấu hình key chỉ xác nhận có key, chưa xác nhận key hợp lệ hoặc gọi Gemini thành công.
+
+| Tình huống | Cách xử lý |
+|---|---|
+| AI báo chưa được cấu hình | Dừng server, chạy lại và nhập key; không dùng `--without-ai` vì tùy chọn này chủ động bỏ key trong tiến trình chạy ứng dụng. |
+| Không hỏi key nhưng muốn dùng key khác | Dừng server, xóa `GEMINI_API_KEY` bằng lệnh trên rồi chạy lại để nhập key mới. |
+| Gemini không chấp nhận key hoặc từ chối quyền truy cập | Kiểm tra lại key và quyền dùng API/model của dự án chứa key. |
+| Không tìm thấy mô hình/API | Kiểm tra `GEMINI_MODEL` và quyền truy cập model tương ứng với API mà dự án đang dùng. |
+| Hết hạn mức hoặc quá nhiều yêu cầu | Kiểm tra hạn mức của dự án trong Google AI Studio rồi thử lại sau. |
+| Lỗi kết nối hoặc hết thời gian chờ | Kiểm tra Internet; nếu cần, đặt `GEMINI_TIMEOUT_SECONDS` trong khoảng 1–120 trước khi khởi động lại server. |
+
+Không nhập key vào ô tên thương hiệu hoặc sửa HTML/JavaScript để chứa key. Chỉ tạo/copy file `.env` sẽ chưa cấu hình được AI vì ứng dụng không tự đọc file này. Khi đổi key qua biến môi trường, cần dừng và khởi động lại server để tiến trình nhận giá trị mới.
+
 ## 6. Cấu trúc source
 
 ```text

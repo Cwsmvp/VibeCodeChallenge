@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+function initializeEvaluation() {
   const state = window.appState;
   const content = document.getElementById("evaluation-content");
   const button = document.getElementById("evaluation-retry");
@@ -41,4 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   button.addEventListener("click", loadEvaluation);
   loadEvaluation();
-});
+}
+document.addEventListener("DOMContentLoaded", initializeEvaluation);
+document.addEventListener("brand:ready", initializeEvaluation);

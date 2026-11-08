@@ -72,6 +72,7 @@
       <ul class="history-list" id="history-list"></ul>
       <div class="dialog-actions"><button class="text-button danger-text" id="clear-history" type="button">Xóa lịch sử</button><button class="button button-secondary button-small" id="done-history" type="button">Đóng</button></div>
     </dialog>
-    <script>window.appState = {{ state | tojson }};</script>
+    <script id="app-state" type="application/json">{{ state | tojson }}</script>
+    <script>window.appState = JSON.parse(document.getElementById('app-state').textContent);</script>
   </body>
 </html>

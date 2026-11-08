@@ -32,7 +32,7 @@ function setup(brand = "Mây") {
     setTimeout: handler => {timers.set(++timerId, handler); return timerId;},
     clearTimeout: id => timers.delete(id),
     document: {createElement: () => new Element(), getElementById: id => ids[id],
-      addEventListener: (event, handler) => ready.push(handler)},
+      addEventListener: (event, handler) => { if (event === "DOMContentLoaded") ready.push(handler); }},
     fetch: (url, options) => new Promise((resolve, reject) => {
       calls.push({url, payload: JSON.parse(options.body), resolve, reject});
       options.signal.addEventListener("abort", () => reject(Object.assign(new Error(), {name: "AbortError"})));
@@ -115,6 +115,19 @@ test("copy reflects loading then completed results", async () => {
   await flush();
   assert.match(copy(), /Cùng bạn mỗi ngày/);
   assert.doesNotMatch(copy(), /Đang tải/);
+});
+
+test("a late slogan response cannot overwrite the state of a newer brand", async () => {
+  const page = setup();
+  const newer = {brand: "Tên mới", slug: "tenmoi", slogans: [], tagline: ""};
+  page.context.window.appState = newer;
+  page.finish("/api/slogans", slogans);
+  page.finish("/api/evaluate", evaluation);
+  await flush();
+  assert.deepEqual(newer.slogans, []);
+  assert.equal(newer.tagline, "");
+  assert.equal(newer.evaluation, undefined);
+  assert.equal(page.state.tagline, slogans.tagline);
 });
 
 test("network and non-JSON hosting failures end both loading states", async () => {
